@@ -1,0 +1,39 @@
+
+# Node modules
+node_modules/
+
+
+# Parcel build output
+public/front/js/
+public/server/
+
+
+# TypeScript cache files
+*.tsbuildinfo
+
+# Logs
+logs/
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE and Editor settings
+.vscode/
+.idea/
+*.swp
+
+# Environment variables
+.env
+
+# Temporary files
+*.tmp
+*.temp
+
+# pritier
+# Ignore artifacts:
+.prettierignore
+.prettierrc
+.stylelintrc.json
+.little-taskwarrior.json

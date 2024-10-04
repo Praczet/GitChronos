@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    // Specify ECMAScript target version
+    "target": "ES6",
+    // Module system for Node.js
+    "module": "esnext",
+    // Output directory for compiled JavaScript
+    "outDir": "./public",
+    // Base directory for resolving non-relative module names
+    "rootDir": "./",
+    // Enable strict type-checking options
+    "strict": true,
+    // Allows default imports from modules with no default export
+    "esModuleInterop": true,
+    // Avoid checking types of dependencies (faster build)
+    "skipLibCheck": true,
+    // Allows compilation for common JavaScript libraries (e.g., DOM, Node.js)
+    "lib": [
+      "ES6",
+      "DOM"
+    ],
+    // Maintain original directory structure in output
+    "preserveConstEnums": true,
+    // Generates corresponding declaration (.d.ts) files
+    "declaration": true,
+    // Include all errors and warnings in the output
+    "noEmitOnError": false,
+    // Node resolution strategy
+    "moduleResolution": "node",
+  },
+  "include": [
+    // Include TypeScript files in the source folders
+    "front/**/*/*",
+    "server/**/*"
+  ],
+  "exclude": [
+    // Exclude the node_modules and compiled output
+    "node_modules",
+    "dist"
+  ]
+}
