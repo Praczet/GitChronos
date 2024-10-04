@@ -4,24 +4,45 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="front/styles/styles.css" rel="stylesheet">
+  <link rel="stylesheet" href="front/styles/styles.css">
   <title>GitChronos</title>
 </head>
 
-<body class="bg-gray-900 text-white">
-  <header class="text-center py-4 bg-blue-600">
-    <h1 class="text-3xl font-bold">GitChronos</h1>
-  </header>
-  <main id="app" class="p-4">
-    <!-- Content will go here -->
-    <!-- Add the Git Visualization container here -->
-    <div id="visualization" class="p-6 bg-gray-800 rounded-lg shadow-lg">
-      <h2 class="text-2xl font-bold text-center mb-4">Git Visualization</h2>
-      <div id="stack-container">
-        <!-- Stack visualization goes here -->
-      </div>
-    </div>
-  </main>
+<body>
+  <div id="app" class="app-container">
+
+    <!-- Header -->
+    <header class="app-header">
+      <h1>GitChronos</h1>
+    </header>
+
+    <!-- Sidebar for selecting projects -->
+    <aside class="app-sidebar">
+      <h2>Projects</h2>
+      <ul class="project-list">
+        <!-- Project items will be dynamically added here -->
+      </ul>
+    </aside>
+
+    <!-- Main content area -->
+    <main class="app-main">
+
+      <!-- Timeline view for commits -->
+      <section id="timeline" class="timeline-view">
+        <div class="timeline-container"> </div>
+      </section>
+
+      <!-- Detailed commit and branch info -->
+      <section id="details" class="details-panel">
+        <h2>Commit Details</h2>
+        <div id="commit-details" class="commit-details"> </div>
+        <h2>Branch Overview</h2>
+        <div id="branch-overview" class="branch-overview"> </div>
+      </section>
+
+    </main>
+  </div>
+
   <script type="module" src="front/js/app.js" defer></script>
 </body>
 

@@ -30,7 +30,7 @@
   },
   "include": [
     // Include TypeScript files in the source folders
-    "front/**/*/*",
+    "front/**/*",
     "server/**/*"
   ],
   "exclude": [
