@@ -12,7 +12,7 @@ export class Card {
   // Method to create a card element
   private createElement(): HTMLElement {
     const card = document.createElement('div');
-    card.className = 'bg-blue-500 text-white p-4 rounded-md mb-2 shadow-md transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg ';
+    card.className = '';
     card.textContent = this.message;
     return card;
   }
