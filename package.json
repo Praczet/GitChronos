@@ -2,7 +2,7 @@
   "name": "gitchronos",
   "version": "1.0.0",
   "description": "A visualization tool for exploring Git history in a 2.5D style.",
-  "main": "public/server/server.js",
+  "main": "public/server/Main.js",
   "type": "module",
   "scripts": {
     "build": "tsc",

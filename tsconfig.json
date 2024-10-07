@@ -27,6 +27,9 @@
     "noEmitOnError": false,
     // Node resolution strategy
     "moduleResolution": "node",
+    // just to allow js files
+    "allowJs": true,
+    "resolveJsonModule": true
   },
   "include": [
     // Include TypeScript files in the source folders
