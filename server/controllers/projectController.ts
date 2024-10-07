@@ -1,4 +1,3 @@
-
 import { Request, Response } from 'express';
 import ConfigManager from '../config/ConfigManager.js';
 import { ServerResponse } from '../models/ServerResponse.js';

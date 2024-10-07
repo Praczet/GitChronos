@@ -12,34 +12,35 @@ class FrontApp {
     document.addEventListener('DOMContentLoaded', () => {
       this.initializeDOM();
       this.fetchProjects();
+      // this.fetchCommits("");
     });
   }
 
   // Method to initialize the DOM
   private initializeDOM(): void {
-    const stackContainer = document.getElementById('stack-container');
-    console.log(stackContainer);
-    if (stackContainer) {
-      this.renderCards(stackContainer);
-    }
+    // const stackContainer = document.getElementById('stack-container');
+    // console.log(stackContainer);
+    // if (stackContainer) {
+    //   this.renderCards(stackContainer);
+    // }
   }
 
-  // Method to render cards in the stack container
-  private renderCards(stackContainer: HTMLElement): void {
-    // Example code to create cards using fetched commits
-    fetch('/api/commits')
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.all) {
-          data.all.forEach((commit: any) => {
-            const card = new Card(commit.message);
-            card.addHoverEffect();
-            stackContainer.appendChild(card.getElement());
-          });
-        }
-      })
-      .catch((error) => console.error('Error fetching commits:', error));
-  }
+  // // Method to render cards in the stack container
+  // private renderCards(stackContainer: HTMLElement): void {
+  //   // Example code to create cards using fetched commits
+  //   fetch('/api/commits')
+  //     .then((response) => response.json())
+  //     .then((data) => {
+  //       if (data.all) {
+  //         data.all.forEach((commit: any) => {
+  //           const card = new Card(commit.message);
+  //           card.addHoverEffect();
+  //           stackContainer.appendChild(card.getElement());
+  //         });
+  //       }
+  //     })
+  //     .catch((error) => console.error('Error fetching commits:', error));
+  // }
 
   // Method to fetch projects and render them
   // private fetchProjects(): void {
@@ -72,6 +73,7 @@ class FrontApp {
           projectLi.classList.add('selected');
           console.log('Selected project:', project);
           this.selectedProject = project;
+          // this.fetchProjects();
           this.fetchCommits(this.selectedProject.path);
         });
         projectsUl.appendChild(projectLi);
@@ -83,7 +85,7 @@ class FrontApp {
 
   private async fetchProjects(): Promise<void> {
     try {
-      const data = await HttpService.Fetch<IServerResponse<IProjectConfig[]>>('/api/projects');
+      const data = await HttpService.Fetch < IServerResponse < IProjectConfig[] >> ('/api/projects');
       const response = new ServerResponse(data);
       if (response.isError()) {
         console.error(response.message);
@@ -97,9 +99,7 @@ class FrontApp {
   }
   private async fetchCommits(projectPath: string, branch: string = ""): Promise<void> {
     try {
-
-      const data = await HttpService.Fetch<IServerResponse<{ commits: any[] }>>('/api/git/commits');
-
+      const data = await HttpService.Fetch < IServerResponse < string[] >> ('/api/git/commits', { path: projectPath, branch: branch });
       const response = new ServerResponse(data);
       if (response.isError()) {
         console.error(response.message);
@@ -111,23 +111,5 @@ class FrontApp {
       console.error('Unexpected error:', error);
     }
   }
-
-  // private fetchCommits(projectPath: string): void {
-  //   fetch(`/api/commits/:${projectPath}`)
-  //     .then((response) => response.json())
-  //     .then((dResponse: IServerResponse) => {
-  //       const response = new ServerResponse(dResponse);
-  //       console.log(response);
-  //       if (response.isError()) {
-  //         console.error(response.message);
-  //         return;
-  //       }
-  //       console.log(response.data);
-  //       // this.renderCommits(response.data ?? []);
-  //     })
-  //     .catch((error) => console.error('Unexpected error:', error));
-  // }
 }
-
-// Instantiate the class to initialize the app
 new FrontApp();

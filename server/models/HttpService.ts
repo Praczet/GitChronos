@@ -1,4 +1,5 @@
 import { IServerResponse } from './IServerResponse.js';
+import { Request } from 'express';
 
 type FetchOptions = {
   method?: string;
@@ -8,21 +9,30 @@ type FetchOptions = {
 
 class HttpService {
   // Static method to perform a fetch request with default settings and handle IServerResponse
-  public static async Fetch<T>(url: string, options: FetchOptions = {}): Promise<IServerResponse<T>> {
+
+  public static async Fetch<T>(url: string, data: any = undefined, options: FetchOptions = {}): Promise<IServerResponse<T>> {
     const defaultHeaders = {
       'Content-Type': 'application/json',
     };
 
+    let modifiedUrl = url;
+    const method = options.method || 'GET';
+
+    // If data is provided and method is GET, append data as query parameters
+    if (method === 'GET' && data) {
+      const queryParams = new URLSearchParams(data).toString();
+      modifiedUrl += `?${queryParams}`;
+    }
+
     const fetchOptions: RequestInit = {
-      method: options.method || 'GET', // Default to 'GET' if method is not provided
-      headers: { ...defaultHeaders, ...options.headers }, // Merge default headers with custom headers
-      body: options.body ? JSON.stringify(options.body) : undefined,
+      method, // Use determined method
+      headers: { ...defaultHeaders, ...options.headers },
+      body: method !== 'GET' && method !== 'HEAD' && data ? JSON.stringify(data) : undefined,
     };
 
     try {
-      const response = await fetch(url, fetchOptions);
+      const response = await fetch(modifiedUrl, fetchOptions);
       if (!response.ok) {
-        // Create an error response object if the response is not ok
         const errorResponse: IServerResponse<T> = {
           message: 'HTTP error',
           type: 'error',
@@ -32,11 +42,10 @@ class HttpService {
         };
         return errorResponse;
       }
-      // Parse the response as JSON
-      const data: IServerResponse<T> = await response.json();
-      return data;
+
+      const responseData: IServerResponse<T> = await response.json();
+      return responseData;
     } catch (error) {
-      // Handle any network errors
       const errorResponse: IServerResponse<T> = {
         message: 'HTTP error',
         type: 'error',
@@ -47,6 +56,29 @@ class HttpService {
       return errorResponse;
     }
   }
+
+  public static createResponseObject(req: Request): Record<string, any> {
+    let response: Record<string, any> = {};
+
+    if (req.method === "GET") {
+      response = {
+        ...req.query, // Spread all query parameters into the response object
+      };
+    } else if (req.method === "POST") {
+      response = {
+        ...req.body, // Spread all body properties into the response object
+      };
+    } else {
+      response = {
+        message: `Unsupported HTTP method: ${req.method}`,
+        method: req.method,
+      };
+    }
+
+    return response;
+  }
+
+
 }
 
 export default HttpService;
