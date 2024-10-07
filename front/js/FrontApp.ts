@@ -105,7 +105,7 @@ class FrontApp {
         console.error(response.message);
         return;
       }
-      console.log(response.data);
+      console.log(response.data.map((commit: any) => commit.message));
       // this.renderCommits(response.data?.commits ?? []);
     } catch (error) {
       console.error('Unexpected error:', error);
