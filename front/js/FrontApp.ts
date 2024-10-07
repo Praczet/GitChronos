@@ -63,10 +63,14 @@ class FrontApp {
   // Method to render the projects list
   private renderProjects(projects: IProjectConfig[]): void {
     const projectsUl = document.getElementById('projects-list');
+    let counter = 1;
     if (projectsUl) {
+
       projects.forEach((project) => {
+        project.uuid = counter++;
         const projectLi = document.createElement('li');
         projectLi.textContent = project.name;
+        projectLi.id = project.uuid ? `project-${project.uuid}` : '';
         projectLi.classList.add('project');
         projectLi.classList.remove('selected');
         projectLi.addEventListener('click', () => {
@@ -74,7 +78,8 @@ class FrontApp {
           console.log('Selected project:', project);
           this.selectedProject = project;
           // this.fetchProjects();
-          this.fetchCommits(this.selectedProject.path);
+          // this.fetchBranches(this.selectedProject);
+          this.fetchLogGraph(this.selectedProject);
         });
         projectsUl.appendChild(projectLi);
       });
@@ -82,10 +87,27 @@ class FrontApp {
       console.error('Projects list not found');
     }
   }
+  private renderBranches(branches: string[]): void {
+    const branchesUl = document.getElementById('branches-list');
+    if (branchesUl) {
+      branches.forEach((branch) => {
+        const branchLi = document.createElement('li');
+        branchLi.textContent = branch;
+        branchLi.classList.add('branch');
+        branchLi.addEventListener('click', () => {
+          console.log('Selected branch:', branch);
+          this.fetchCommits(this.selectedProject?.path ?? "", branch);
+        });
+        branchesUl.appendChild(branchLi);
+      });
+    } else {
+      console.error('Branches list not found');
+    }
+  }
 
   private async fetchProjects(): Promise<void> {
     try {
-      const data = await HttpService.Fetch < IServerResponse < IProjectConfig[] >> ('/api/projects');
+      const data = await HttpService.Fetch<IServerResponse<IProjectConfig[]>>('/api/projects');
       const response = new ServerResponse(data);
       if (response.isError()) {
         console.error(response.message);
@@ -99,14 +121,44 @@ class FrontApp {
   }
   private async fetchCommits(projectPath: string, branch: string = ""): Promise<void> {
     try {
-      const data = await HttpService.Fetch < IServerResponse < string[] >> ('/api/git/commits', { path: projectPath, branch: branch });
+      const data = await HttpService.Fetch<IServerResponse<string[]>>('/api/git/commits', { path: projectPath, branch: branch });
       const response = new ServerResponse(data);
       if (response.isError()) {
         console.error(response.message);
         return;
       }
+      console.log(response.data);
       console.log(response.data.map((commit: any) => commit.message));
       // this.renderCommits(response.data?.commits ?? []);
+    } catch (error) {
+      console.error('Unexpected error:', error);
+    }
+  }
+  private async fetchBranches(project: IProjectConfig): Promise<void> {
+    try {
+      const data = await HttpService.Fetch<IServerResponse<string[]>>('/api/git/branches', { path: project.path });
+      const response = new ServerResponse(data);
+      if (response.isError()) {
+        console.error(response.message);
+        return;
+      }
+      console.log(response.data);
+      this.renderBranches(response.data ?? []);
+      // this.renderBranches(response.data?.branches ?? []);
+    } catch (error) {
+      console.error('Unexpected error:', error);
+    }
+  }
+  private async fetchLogGraph(project: IProjectConfig): Promise<void> {
+    try {
+      const data = await HttpService.Fetch<IServerResponse<string[]>>('/api/git/graph', { path: project.path });
+      const response = new ServerResponse(data);
+      if (response.isError()) {
+        console.error(response.message);
+        return;
+      }
+      console.log(response.data);
+      // this.renderBranches(response.data?.branches ?? []);
     } catch (error) {
       console.error('Unexpected error:', error);
     }

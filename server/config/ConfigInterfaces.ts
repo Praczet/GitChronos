@@ -1,5 +1,6 @@
 
 export interface IProjectConfig {
+  uuid?: number;
   name: string;
   path: string;
   theme?: 'dark' | 'light';
