@@ -79,7 +79,8 @@ class FrontApp {
           this.selectedProject = project;
           // this.fetchProjects();
           // this.fetchBranches(this.selectedProject);
-          this.fetchLogGraph(this.selectedProject);
+          // this.fetchLogGraph(this.selectedProject);
+          this.fetchCommits(this.selectedProject.path);
         });
         projectsUl.appendChild(projectLi);
       });
@@ -121,14 +122,14 @@ class FrontApp {
   }
   private async fetchCommits(projectPath: string, branch: string = ""): Promise<void> {
     try {
-      const data = await HttpService.Fetch<IServerResponse<string[]>>('/api/git/commits', { path: projectPath, branch: branch });
+      const data = await HttpService.Fetch<IServerResponse<Record<string, any>>>('/api/git/commits', { path: projectPath, branch: branch });
       const response = new ServerResponse(data);
       if (response.isError()) {
         console.error(response.message);
         return;
       }
       console.log(response.data);
-      console.log(response.data.map((commit: any) => commit.message));
+      console.log(response.data.filter((commit: Record<string, any>) => commit.refs !== ""));
       // this.renderCommits(response.data?.commits ?? []);
     } catch (error) {
       console.error('Unexpected error:', error);
