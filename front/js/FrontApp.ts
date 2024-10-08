@@ -145,7 +145,6 @@ class FrontApp {
       }
       console.log(response.data);
       this.renderBranches(response.data ?? []);
-      console.log(response.data.length);
       // this.renderBranches(response.data?.branches ?? []);
     } catch (error) {
       console.error('Unexpected error:', error);
