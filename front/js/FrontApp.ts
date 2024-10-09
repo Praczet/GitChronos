@@ -79,8 +79,8 @@ class FrontApp {
           this.selectedProject = project;
           // this.fetchProjects();
           // this.fetchBranches(this.selectedProject);
-          // this.fetchLogGraph(this.selectedProject);
-          this.fetchCommits(this.selectedProject.path);
+          this.fetchLogGraph(this.selectedProject);
+          // this.fetchCommits(this.selectedProject.path);
         });
         projectsUl.appendChild(projectLi);
       });
@@ -158,11 +158,84 @@ class FrontApp {
         console.error(response.message);
         return;
       }
+      this.renderGraph(response.data ?? []);
       console.log(response.data);
       // this.renderBranches(response.data?.branches ?? []);
     } catch (error) {
       console.error('Unexpected error:', error);
     }
   }
+
+  /**
+  * It will render the graph data
+   *
+   * @param {{ commit: string, parents: string[], refs: string }[]} graph - [TODO:description]
+   * @returns {[TODO:type]} [TODO:description]
+   */
+  private renderGraph(graph: { commit: string, parents: string[], refs: string }[]): void {
+    const graphCanvas = document.getElementById('graph-canvas');
+    if (!graphCanvas) { console.error('Graph canvas not found'); return; }
+    graphCanvas.innerHTML = '';
+    if (graph.length === 0) { console.error('No graph data'); return; }
+
+
+    function __walkGraph(commit: string, level: number, childHtml: HTMLElement | null = null) {
+      if (!graphCanvas) return;
+      const node = graph.find((n) => n.commit === commit);
+      if (!node) return;
+      let hNode = __getGraphNode(node.commit, childHtml, level);
+
+      let parentHtml = hNode.querySelector('.graph-parents') as HTMLElement;
+      level++;
+      node.parents.forEach((parent) => {
+        console.log(`Commit: ${node.commit} Parent: ${parent} Level: ${level}`);
+        __walkGraph(parent, level, parentHtml);
+      });
+    }
+
+
+    function __getGraphLevelNode(level: number, graphCanvas: HTMLElement = document.getElementById('graph-canvas') as HTMLElement): HTMLElement {
+      let parentHtml = document.getElementById(`graph-level-${level}`);
+      if (parentHtml) return parentHtml;
+      parentHtml = document.createElement('div');
+      parentHtml.classList.add(`graph-level-${level}`);
+      parentHtml.id = `graph-level-${level}`;
+      graphCanvas.appendChild(parentHtml);
+      return parentHtml;
+    }
+
+    function __getGraphNode(commit: string, childHtml: HTMLElement | null, level: number): HTMLElement {
+      let hNode = document.getElementById(`graph-commit-wrapper-${commit}`);
+      if (hNode) return hNode;
+
+      hNode = document.createElement('div');
+      hNode.classList.add('graph-commit-wrapper');
+      hNode.id = `graph-commit-wrapper-${commit}`;
+      if (!childHtml) childHtml = __getGraphLevelNode(level);
+      childHtml.appendChild(hNode);
+      let hCommit = document.createElement('div');
+      hCommit.classList.add('graph-commit');
+      hCommit.textContent = commit;
+      hCommit.id = `graph-commit-${commit}`;
+      hNode.appendChild(hCommit);
+      const node = graph.find((n) => n.commit === commit);
+      if (!node) return hNode;
+      if (node.parents.length > 1) {
+        const mergeNode = document.createElement('div');
+        mergeNode.classList.add('graph-merge');
+        mergeNode.id = `graph-merge-${node.parents.join('-')}`;
+        hNode.appendChild(mergeNode);
+      }
+      let hParents = document.createElement('div');
+      hParents.classList.add('graph-parents');
+      hParents.id = `graph-parents-${commit}`;
+      hNode.appendChild(hParents);
+      return hNode;
+    }
+
+    __walkGraph(graph[0].commit, 0);
+
+  }
+
 }
 new FrontApp();

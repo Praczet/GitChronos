@@ -48,8 +48,25 @@ export const getLogGraph = async (req: Request, res: Response): Promise<void> =>
   try {
     const git = getGit(req, res);
     if (!git) throw new Error('Failed to get git');
-    const gitLog = await git.log({ '--graph': null, '--decorate': null, '--all': null });
-    const response = new ServerResponse('Commit history fetched successfully', 'info', 200, gitLog.all);
+    // const gitLog = await git.log();
+    const gitLog = await git.log({ '--all': null, '--pretty=format:"%h|%p|%d"': null });
+    // const gitLog = await git.log({ '--graph': null, '--decorate': null, '--all': null });
+    let log = gitLog.all;
+    let graph: { commit: string, parents: string[], refs: string }[] = [];
+    if (log.length === 1) {
+      let lines = log[0].hash.split('\n');
+      lines.forEach((line: string) => {
+        line = line.replace(/^"|"$/g, '');
+        let parts = line.split('|');
+        if (parts.length === 3) {
+          let commit = parts[0];
+          let parents = parts[1].split(' ');
+          let refs = parts[2].replace(/^ \(/, "(");
+          graph.push({ commit, parents, refs });
+        }
+      });
+    }
+    const response = new ServerResponse('Commit history fetched successfully', 'info', 200, graph);
     res.status(200).json(response);
   } catch (error) {
     const response = new ServerResponse('Failed to fetch commit history', 'error', 500, null, error);
