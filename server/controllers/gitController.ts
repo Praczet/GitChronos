@@ -111,8 +111,24 @@ export const getCommit = async (req: Request, res: Response): Promise<void> => {
     if (!parameters || !parameters.commitHash) throw new Error('Failed to get commit hash');
     const commitHash = parameters.commitHash;
     // const gitCommit = await git.show(commitHash);
-    const gitCommit = await git.show([commitHash, '--pretty=format:%H|%an|%ae|%ad|%s|%b|', '--name-status']);
-    const response = new ServerResponse('Commit fetched successfully', 'info', 200, gitCommit);
+    const gitCommit = await git.show([commitHash, '--pretty=format:%h|=!=|%an|=!=|%ae|=!=|%ad|=!=|%s|=!=|%b|=!=|', '--name-status', "--date=iso"]);
+    let resData = {};
+    if (gitCommit && gitCommit !== '') {
+      let lData = gitCommit.split('|=!=|');
+      if (lData && lData.length === 7) {
+        resData = {
+          commit: lData[0],
+          author: lData[1],
+          email: lData[2],
+          cDate: lData[3],
+          message: lData[4],
+          body: lData[5],
+          files: lData[6].trim().split('\n').map((file: string) => file.split('\t'))
+        }
+      }
+
+    }
+    const response = new ServerResponse('Commit fetched successfully', 'info', 200, resData);
     res.status(200).json(response);
   } catch (error) {
     const response = new ServerResponse('Failed to fetch commit', 'error', 500, null, error);

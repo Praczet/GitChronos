@@ -136,6 +136,7 @@ body {
   color: var(--commit-text-hover);
   border-color: var(--commit-text-hover);
   box-shadow: 0 0 10px 5px var(--commit-glow);
+  z-index: 2;
 }
 
 .graph-line:hover {

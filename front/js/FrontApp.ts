@@ -5,6 +5,7 @@ import { ServerResponse } from '../../server/models/ServerResponse.js';
 import { IProjectConfig } from '../../server/config/ConfigInterfaces.js';
 import HttpService from '../../server/models/HttpService.js';
 import { IGraph } from './IFrontApp.js';
+import ToolTip from './ToolTip.js';
 
 class FrontApp {
   private projects: IProjectConfig[] = [];
@@ -13,6 +14,7 @@ class FrontApp {
   private graph: IGraph[] = [];
   private commitPositionMap: Record<string, { x: number, y: number, row: number }> = {};
   private commitGrid: { commit: string, row: number, yC: number, yP: number, pCommit: string }[] = [];
+  private tooltip = new ToolTip();
   constructor() {
     document.addEventListener('DOMContentLoaded', () => {
       this.initializeDOM();
@@ -333,10 +335,11 @@ class FrontApp {
           }
 
           if (!commit.message) {
-            that.loadCommitData(commit.commit);
+            that.loadCommitData(commit.commit, 'loadToolTip');
           } else {
-            console.log('Commit data already loaded, meeting:', commit.message);
+            that.tooltip.setContent(commit.message);
           }
+          that.tooltip.show(commitDiv, { dX: dx, dY: 0 });
         });
         commitDiv.addEventListener('mouseleave', () => {
           if (commit.parents && commit.parents.length > 0 && commit.parents[0] !== '') {
@@ -347,6 +350,7 @@ class FrontApp {
               if (parentDiv) parentDiv.classList.remove('glow-50');
             });
           }
+          that.tooltip.hide();
         });
         fragment.appendChild(commitDiv); // Add to fragment instead of directly to DOM
       });
@@ -438,7 +442,7 @@ class FrontApp {
     }
   }
 
-  private async loadCommitData(commit: string): Promise<void> {
+  private async loadCommitData(commit: string, returnAction: string = ""): Promise<void> {
     try {
       const data = await HttpService.Fetch<IServerResponse<IGraph>>(
         '/api/git/commit',
@@ -451,6 +455,18 @@ class FrontApp {
         return;
       }
       const commitData = response.data;
+      if (this.graph) {
+        const commit = this.graph.find((c) => c.commit === commitData.commit);
+        if (commit) {
+          commit.author = commitData.author;
+          commit.email = commitData.email;
+          commit.cDate = commitData.cDate;
+          commit.message = commitData.message;
+          commit.body = commitData.body;
+          commit.files = commitData.files
+          if (returnAction === 'loadToolTip') this.tooltip.setContent(commitData.message);
+        }
+      }
       console.log('Commit data:', commitData);
     } catch (error) {
       console.error('Unexpected error:', error);

@@ -3,7 +3,9 @@ export interface IGraph {
   parents: string[],
   refs: string,
   cDate: string,
-  files?: string[],
   author?: string,
-  message?: string
+  message?: string,
+  email?: string,
+  body?: string,
+  files?: string[][]
 }
