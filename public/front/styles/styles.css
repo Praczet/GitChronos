@@ -1,33 +1,61 @@
-.graph-commit{
-  border: 1px solid #e1e4e8;
-  padding: 10px;
+#graph-canvas-section{
+  position: relative;
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.graph-commit {
+  position: absolute;
   width: 100px;
+  height: 30px;
+  background-color: #eee;
+  border: 1px solid #ccc;
+  border-radius: 5px;
   text-align: center;
-
+  line-height: 30px;
+  z-index: 1;
 }
 
-.graph-canvas{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.graph-line{
+  position: absolute;
+  z-index: 0;
+  border:2px solid #333;
 }
 
-.graph-parents{
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
+.graph-line-vertical {
+  border:none;
+  border-left: 2px solid #6d1010;
 }
 
-.graph-merge{
-  display: flex;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background-color: #6f42c1;
+.graph-line-horizontal {
+  border:none;
+  border-top:2px solid #333;
 }
 
-.graph-commit-wrapper{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.graph-line-top-right {
+  border:none;
+  border-top:2px solid #333;
+  border-right:2px solid #333;
+  border-radius: 0 10px 0 0;
+}
+
+.graph-line-top-left {
+  border:none;
+  border-top:2px solid #333;
+  border-left:2px solid #333;
+  border-radius: 10px 0 0;
+}
+
+.graph-line-bottom-right {
+  border:none;
+  border-bottom:2px solid #333;
+  border-right:2px solid #333;
+  border-radius: 0 0 10px;
+}
+
+.graph-line-bottom-left {
+  border:none;
+  border-bottom:2px solid #333;
+  border-left:2px solid #333;
+  border-radius: 0 0 0 10px;
 }

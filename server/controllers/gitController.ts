@@ -49,20 +49,21 @@ export const getLogGraph = async (req: Request, res: Response): Promise<void> =>
     const git = getGit(req, res);
     if (!git) throw new Error('Failed to get git');
     // const gitLog = await git.log();
-    const gitLog = await git.log({ '--all': null, '--pretty=format:"%h|%p|%d"': null });
+    const gitLog = await git.log({ '--all': null, '--pretty=format:"%h|%p|%d|%ad"': null, '--date=iso': null });
     // const gitLog = await git.log({ '--graph': null, '--decorate': null, '--all': null });
     let log = gitLog.all;
-    let graph: { commit: string, parents: string[], refs: string }[] = [];
+    let graph: { commit: string, parents: string[], refs: string, cDate: string }[] = [];
     if (log.length === 1) {
       let lines = log[0].hash.split('\n');
       lines.forEach((line: string) => {
         line = line.replace(/^"|"$/g, '');
         let parts = line.split('|');
-        if (parts.length === 3) {
+        if (parts.length === 4) {
           let commit = parts[0];
           let parents = parts[1].split(' ');
           let refs = parts[2].replace(/^ \(/, "(");
-          graph.push({ commit, parents, refs });
+          let cDate = parts[3];
+          graph.push({ commit, parents, refs, cDate });
         }
       });
     }

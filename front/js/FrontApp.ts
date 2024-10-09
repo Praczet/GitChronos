@@ -166,74 +166,176 @@ class FrontApp {
     }
   }
 
+
+
+
+
+
+
+
+
+
   /**
   * It will render the graph data
    *
-  * @param {{ commit: string, parents: string[], refs: string }[]} graph - list of commits
+  * @param {{ commit: string, parents: string[], refs: string , cDate:string}[]} graph - list of commits
    */
   private renderGraph(graph: { commit: string, parents: string[], refs: string }[]): void {
+    const marginX = 100;
+    const shiftX = 60;
+    const shiftY = 50;
+    const dx = 100;
+    const dy = 30;
     const graphCanvas = document.getElementById('graph-canvas');
     if (!graphCanvas) { console.error('Graph canvas not found'); return; }
     graphCanvas.innerHTML = '';
     if (graph.length === 0) { console.error('No graph data'); return; }
 
+    const graphPre = document.getElementById('graph-pre');
 
-    function __walkGraph(commit: string, level: number, childHtml: HTMLElement | null = null) {
+    const commitPositionMap: Record<string, { x: number, y: number, row: number }> = {};
+
+    const commitGrid: { commit: string, row: number, yC: number, yP: number, pCommit: string }[] = [];
+    let row = 0;
+
+    graph.forEach((commit, index) => {
+      let cPos = commitPositionMap[commit.commit];
+      if (!cPos) {
+        commitPositionMap[commit.commit] = { x: marginX + 0, y: index * shiftY, row: row };
+        cPos = commitPositionMap[commit.commit];
+      }
+      const pgCommit = commitGrid.find((c) => c.pCommit === commit.commit);
+      if (pgCommit) { pgCommit.yP = cPos.y; }
+
+      if (commit.parents && commit.parents.length > 0) {
+        commit.parents.forEach((parent, pIndex) => {
+          let pPos = commitPositionMap[parent];
+          if (!pPos) {
+
+            commitPositionMap[parent] = { x: (shiftX * pIndex) + cPos.x, y: (index + 1) * shiftY, row: cPos.row + pIndex };
+            pPos = commitPositionMap[parent];
+            if (cPos.x === pPos.x) {
+              let tCommit = commitGrid.find((c) => c.commit === commit.commit);
+              if (!tCommit) commitGrid.push({ row: cPos.row, yC: cPos.y, yP: pPos.y, pCommit: parent, commit: commit.commit });
+            } else {
+            }
+          } else {
+            if (pPos.y < cPos.y) {
+              pPos.y = (index + 1) * shiftY;
+              const pEl = document.getElementById(`graph-commit-${parent}`);
+              if (pEl) pEl.style.top = `${pPos.y}px`;
+              let tCommit = commitGrid.find((c) => c.commit === commit.commit && c.pCommit === parent);
+              if (tCommit) tCommit.yP = pPos.y;
+            }
+          }
+        });
+
+      }
+    });
+
+    if (graphPre) {
+      graphPre.textContent = JSON.stringify(commitGrid, null, 2);
+    }
+    // __checkOverlapping();
+    __drawCommits();
+    __drawLines();
+
+    function __connectCommit2Parent(cPos: { x: number, y: number }, pPos: { x: number, y: number }) {
       if (!graphCanvas) return;
-      const node = graph.find((n) => n.commit === commit);
-      if (!node) return;
-      let hNode = __getGraphNode(node.commit, childHtml, level);
+      const line = document.createElement('div');
+      line.classList.add('graph-line');
+      if (cPos.x === pPos.x && cPos.y < pPos.y) {
+        line.classList.add('graph-line-vertical');
+        line.style.left = `${cPos.x + dx / 2}px`;
+        line.style.top = `${cPos.y + dy}px`;
+        line.style.height = `${pPos.y - cPos.y - dy}px`;
+      }
+      if (cPos.x < pPos.x) {
+        line.classList.add('graph-line-top-right');
+        line.style.left = `${cPos.x + dx}px`;
+        line.style.top = `${cPos.y + dy / 2}px`;
+        line.style.width = `${pPos.x - cPos.x - dx / 2}px`;
+        line.style.height = `${pPos.y - cPos.y}px`;
+      }
 
-      let parentHtml = hNode.querySelector('.graph-parents') as HTMLElement;
-      level++;
-      node.parents.forEach((parent) => {
-        console.log(`Commit: ${node.commit} Parent: ${parent} Level: ${level}`);
-        __walkGraph(parent, level, parentHtml);
+      if (cPos.x > pPos.x) {
+        line.classList.add('graph-line-bottom-right');
+        line.style.left = `${pPos.x + dx}px`;
+        line.style.top = `${cPos.y + dy}px`;
+        line.style.width = `${cPos.x - pPos.x - dx / 2}px`;
+        line.style.height = `${pPos.y - cPos.y - dy / 2}px`;
+      }
+      graphCanvas.appendChild(line);
+
+
+    }
+
+    function __checkOverlapping() {
+      const rows = Array.from(new Set(commitGrid.map((c) => c.row)));
+      rows.forEach((row) => {
+        let rowCommits = commitGrid.filter((c) => c.row === row);
+        rowCommits.forEach((c) => {
+          let double = rowCommits.filter((cc) => c.yC < cc.yC && c.yP > cc.yP && cc.commit !== c.commit);
+          if (double.length > 0) {
+            let tCommitPos = commitPositionMap[c.commit];
+            if (tCommitPos) {
+              console.log('double', double);
+              double.forEach((dbl) => {
+                __shiftCommit(dbl.commit, row + 1);
+              });
+            }
+          }
+        });
       });
     }
 
-
-    function __getGraphLevelNode(level: number, graphCanvas: HTMLElement = document.getElementById('graph-canvas') as HTMLElement): HTMLElement {
-      let parentHtml = document.getElementById(`graph-level-${level}`);
-      if (parentHtml) return parentHtml;
-      parentHtml = document.createElement('div');
-      parentHtml.classList.add(`graph-level-${level}`);
-      parentHtml.id = `graph-level-${level}`;
-      graphCanvas.appendChild(parentHtml);
-      return parentHtml;
-    }
-
-    function __getGraphNode(commit: string, childHtml: HTMLElement | null, level: number): HTMLElement {
-      let hNode = document.getElementById(`graph-commit-wrapper-${commit}`);
-      if (hNode) return hNode;
-
-      hNode = document.createElement('div');
-      hNode.classList.add('graph-commit-wrapper');
-      hNode.id = `graph-commit-wrapper-${commit}`;
-      if (!childHtml) childHtml = __getGraphLevelNode(level);
-      childHtml.appendChild(hNode);
-      let hCommit = document.createElement('div');
-      hCommit.classList.add('graph-commit');
-      hCommit.textContent = commit;
-      hCommit.id = `graph-commit-${commit}`;
-      hNode.appendChild(hCommit);
-      const node = graph.find((n) => n.commit === commit);
-      if (!node) return hNode;
-      if (node.parents.length > 1) {
-        const mergeNode = document.createElement('div');
-        mergeNode.classList.add('graph-merge');
-        mergeNode.id = `graph-merge-${node.parents.join('-')}`;
-        hNode.appendChild(mergeNode);
+    function __shiftCommit(commit: string, row: number) {
+      // cPos.x = tCommitPos.x + shiftX;
+      // tCommitPos.row = tCommitPos.row + 1;
+      let tCommitPos = commitPositionMap[commit];
+      if (!tCommitPos) return;
+      tCommitPos.x = tCommitPos.x + shiftX;
+      tCommitPos.row = row;
+      let cCommit = graph.find((c) => c.commit === commit);
+      if (cCommit) {
+        cCommit.parents.forEach((parent, pIndex) => {
+          console.log('parent', parent);
+          let pPos = commitPositionMap[parent];
+          if (pPos && pPos.row >= (row - 1)) __shiftCommit(parent, pPos.row + 1);
+        });
       }
-      let hParents = document.createElement('div');
-      hParents.classList.add('graph-parents');
-      hParents.id = `graph-parents-${commit}`;
-      hNode.appendChild(hParents);
-      return hNode;
+
     }
 
-    __walkGraph(graph[0].commit, 0);
+    function __drawCommit(commit: string) {
+      const cPos = commitPositionMap[commit];
+      if (!cPos) { console.error('Commit position not found'); return; }
+      const commitDiv = document.getElementById(`graph-commit-${commit}`) ?? document.createElement('div');
+      commitDiv.classList.add('graph-commit');
+      commitDiv.style.left = `${cPos.x}px`;
+      commitDiv.style.top = `${cPos.y}px`;
+      commitDiv.textContent = commit;
+      commitDiv.id = `graph-commit-${commit}`;
+      graphCanvas!.appendChild(commitDiv);
+    }
 
+    function __drawCommits() {
+      graph.forEach((commit) => {
+        __drawCommit(commit.commit);
+      });
+    }
+
+    function __drawLines() {
+      graph.forEach((commit) => {
+        let cPos = commitPositionMap[commit.commit];
+        if (commit.parents && commit.parents.length > 0 && commit.parents[0] !== '') {
+          commit.parents.forEach((parent, pIndex) => {
+            let pPos = commitPositionMap[parent];
+            __connectCommit2Parent(cPos, pPos);
+          });
+        }
+      });
+    }
   }
 
 }
