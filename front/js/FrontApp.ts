@@ -169,8 +169,7 @@ class FrontApp {
   /**
   * It will render the graph data
    *
-   * @param {{ commit: string, parents: string[], refs: string }[]} graph - [TODO:description]
-   * @returns {[TODO:type]} [TODO:description]
+  * @param {{ commit: string, parents: string[], refs: string }[]} graph - list of commits
    */
   private renderGraph(graph: { commit: string, parents: string[], refs: string }[]): void {
     const graphCanvas = document.getElementById('graph-canvas');
