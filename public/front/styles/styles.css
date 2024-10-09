@@ -16,6 +16,28 @@
   z-index: 1;
 }
 
+
+.graph-ref {
+  position: absolute;
+  width: 150px;
+  height: 30px;
+  background-color: #81a8fd; 
+  color: #3b4261;
+  border-radius: 5px;
+  text-align: left;
+  line-height: 30px;
+  z-index: 1;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  padding: 2px;
+}
+
+.graph-ref-line{
+  position: absolute;
+  z-index: 0;
+  border:1px solid #81a8fd;
+}
+
 .graph-line{
   position: absolute;
   z-index: 0;

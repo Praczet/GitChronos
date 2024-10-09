@@ -181,7 +181,9 @@ class FrontApp {
   * @param {{ commit: string, parents: string[], refs: string , cDate:string}[]} graph - list of commits
    */
   private renderGraph(graph: { commit: string, parents: string[], refs: string }[]): void {
-    const marginX = 100;
+    const branchesMarginX = 200;
+    const refsMarginX = 0;
+    const refsX = 0;
     const shiftX = 60;
     const shiftY = 50;
     const dx = 100;
@@ -201,7 +203,7 @@ class FrontApp {
     graph.forEach((commit, index) => {
       let cPos = commitPositionMap[commit.commit];
       if (!cPos) {
-        commitPositionMap[commit.commit] = { x: marginX + 0, y: index * shiftY, row: row };
+        commitPositionMap[commit.commit] = { x: branchesMarginX + 0, y: index * shiftY, row: row };
         cPos = commitPositionMap[commit.commit];
       }
       const pgCommit = commitGrid.find((c) => c.pCommit === commit.commit);
@@ -236,39 +238,11 @@ class FrontApp {
     if (graphPre) {
       graphPre.textContent = JSON.stringify(commitGrid, null, 2);
     }
-    // __checkOverlapping();
+    __checkOverlapping();
     __drawCommits();
     __drawLines();
+    __drawRefs();
 
-    function __connectCommit2Parent(cPos: { x: number, y: number }, pPos: { x: number, y: number }) {
-      if (!graphCanvas) return;
-      const line = document.createElement('div');
-      line.classList.add('graph-line');
-      if (cPos.x === pPos.x && cPos.y < pPos.y) {
-        line.classList.add('graph-line-vertical');
-        line.style.left = `${cPos.x + dx / 2}px`;
-        line.style.top = `${cPos.y + dy}px`;
-        line.style.height = `${pPos.y - cPos.y - dy}px`;
-      }
-      if (cPos.x < pPos.x) {
-        line.classList.add('graph-line-top-right');
-        line.style.left = `${cPos.x + dx}px`;
-        line.style.top = `${cPos.y + dy / 2}px`;
-        line.style.width = `${pPos.x - cPos.x - dx / 2}px`;
-        line.style.height = `${pPos.y - cPos.y}px`;
-      }
-
-      if (cPos.x > pPos.x) {
-        line.classList.add('graph-line-bottom-right');
-        line.style.left = `${pPos.x + dx}px`;
-        line.style.top = `${cPos.y + dy}px`;
-        line.style.width = `${cPos.x - pPos.x - dx / 2}px`;
-        line.style.height = `${pPos.y - cPos.y - dy / 2}px`;
-      }
-      graphCanvas.appendChild(line);
-
-
-    }
 
     function __checkOverlapping() {
       const rows = Array.from(new Set(commitGrid.map((c) => c.row)));
@@ -307,34 +281,90 @@ class FrontApp {
 
     }
 
-    function __drawCommit(commit: string) {
-      const cPos = commitPositionMap[commit];
-      if (!cPos) { console.error('Commit position not found'); return; }
-      const commitDiv = document.getElementById(`graph-commit-${commit}`) ?? document.createElement('div');
-      commitDiv.classList.add('graph-commit');
-      commitDiv.style.left = `${cPos.x}px`;
-      commitDiv.style.top = `${cPos.y}px`;
-      commitDiv.textContent = commit;
-      commitDiv.id = `graph-commit-${commit}`;
-      graphCanvas!.appendChild(commitDiv);
+    function __drawCommits() {
+      const fragment = document.createDocumentFragment(); // Use a DocumentFragment
+      graph.forEach((commit) => {
+        const cPos = commitPositionMap[commit.commit];
+        if (!cPos) { console.error('Commit position not found'); return; }
+        const commitDiv = document.createElement('div');
+        commitDiv.classList.add('graph-commit');
+        commitDiv.style.left = `${cPos.x}px`;
+        commitDiv.style.top = `${cPos.y}px`;
+        commitDiv.textContent = commit.commit;
+        commitDiv.id = `graph-commit-${commit.commit}`;
+
+        fragment.appendChild(commitDiv); // Add to fragment instead of directly to DOM
+      });
+      graphCanvas!.appendChild(fragment); // Append all at once
     }
 
-    function __drawCommits() {
+    function __drawRefs() {
+      const fragment = document.createDocumentFragment(); // Use a DocumentFragment
       graph.forEach((commit) => {
-        __drawCommit(commit.commit);
+        const cPos = commitPositionMap[commit.commit];
+        if (!cPos) { console.error('Commit position not found'); return; }
+        if (commit.refs !== "") {
+          const refDiv = document.createElement('div');
+          refDiv.classList.add('graph-ref');
+          refDiv.style.left = `${refsMarginX}px`;
+          refDiv.style.top = `${cPos.y}px`;
+          refDiv.textContent = commit.refs;
+          fragment.appendChild(refDiv); // Add to fragment instead of directly to DOM
+
+          const refDivLine = document.createElement('div');
+          refDivLine.classList.add('graph-ref-line');
+          refDivLine.style.left = `${refsMarginX + refsX}px`;
+          refDivLine.style.top = `${cPos.y + dy / 2}px`;
+          refDivLine.style.width = `${cPos.x - refsMarginX}px`;
+          fragment.appendChild(refDivLine); // Add to fragment instead of directly to DOM
+
+        }
       });
+      graphCanvas!.appendChild(fragment); // Append all at once
     }
 
     function __drawLines() {
+      const fragment = document.createDocumentFragment(); // Use a DocumentFragment
       graph.forEach((commit) => {
         let cPos = commitPositionMap[commit.commit];
         if (commit.parents && commit.parents.length > 0 && commit.parents[0] !== '') {
           commit.parents.forEach((parent, pIndex) => {
             let pPos = commitPositionMap[parent];
-            __connectCommit2Parent(cPos, pPos);
+            const line = document.createElement('div');
+            line.classList.add('graph-line');
+            if (cPos.x === pPos.x && cPos.y < pPos.y) {
+              line.classList.add('graph-line-vertical');
+              line.style.left = `${cPos.x + dx / 2}px`;
+              line.style.top = `${cPos.y + dy}px`;
+              line.style.height = `${pPos.y - cPos.y - dy}px`;
+            }
+            // Add other conditions here (top-right, bottom-right)
+            if (cPos.x === pPos.x && cPos.y < pPos.y) {
+              line.classList.add('graph-line-vertical');
+              line.style.left = `${cPos.x + dx / 2}px`;
+              line.style.top = `${cPos.y + dy}px`;
+              line.style.height = `${pPos.y - cPos.y - dy}px`;
+            }
+            if (cPos.x < pPos.x) {
+              line.classList.add('graph-line-top-right');
+              line.style.left = `${cPos.x + dx}px`;
+              line.style.top = `${cPos.y + dy / 2}px`;
+              line.style.width = `${pPos.x - cPos.x - dx / 2}px`;
+              line.style.height = `${pPos.y - cPos.y}px`;
+            }
+
+            if (cPos.x > pPos.x) {
+              line.classList.add('graph-line-bottom-right');
+              line.style.left = `${pPos.x + dx}px`;
+              line.style.top = `${cPos.y + dy}px`;
+              line.style.width = `${cPos.x - pPos.x - dx / 2}px`;
+              line.style.height = `${pPos.y - cPos.y - dy / 2}px`;
+            }
+            fragment.appendChild(line); // Add to fragment instead of directly to DOM
           });
         }
       });
+      graphCanvas!.appendChild(fragment); // Append all at once
     }
   }
 
