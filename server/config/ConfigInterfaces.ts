@@ -4,6 +4,7 @@ export interface IProjectConfig {
   name: string;
   path: string;
   theme?: 'dark' | 'light';
+  checkOverlaps?: boolean;
   lastView?: {
     type: 'timeline' | 'file';
     data: any;

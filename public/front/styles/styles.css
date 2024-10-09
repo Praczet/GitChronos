@@ -1,4 +1,80 @@
-#graph-canvas-section{
+:root {
+  --background-color: #f5f5f5;
+  --primary-text-color: #2e2e2e;
+  --secondary-text-color: #6c757d;
+  --accent-color: #007bff;
+  --card-background-color: #fff;
+  --border-color: #e0e0e0;
+  --hover-color: #e8f0fe;
+  --font-body: "Inter", sans-serif;
+
+  /* Font sizes for readability */
+  --font-size-base: 16px;
+  --font-size-large: 18px;
+  --font-size-small: 14px;
+
+  /** Custom colors for the graph */
+  --ref-bg: #e0f7fa;
+  --ref-text: #00796b;
+  --ref-border: #00796b;
+  --commit-bg: #fff;
+  --commit-text: #212121;
+  --commit-border: #bdbdbd;
+  --line-main: #616161;
+
+  /* Hover States */
+  --ref-bg-hover: #b2ebf2; /* Darker cyan */
+  --ref-text-hover: #004d40; /* Darker teal */
+  --commit-bg-hover: #f5f5f5; /* Slightly darker gray */
+  --commit-glow: rgb(255 255 255 / 70%); /* Slightly darker gray */
+  --commit-text-hover: #424242; /* Darker gray */
+  --line-hover: #9e9e9e; /* Dark gray for lines */
+  --glow-50: rgb(255 255 255 / 50%);
+}
+
+[data-theme="dark"],
+:root.dark {
+  --background-color: #1c1c1e;
+  --primary-text-color: #f5f5f7;
+  --secondary-text-color: #a1a1a6;
+  --accent-color: #ff9500; /* Orange for a modern look */
+  --card-background-color: #2c2c2e;
+  --border-color: #3a3a3c;
+  --hover-color: #404040;
+
+  /* Font sizes */
+  --font-size-base: 16px;
+  --font-size-large: 18px;
+  --font-size-small: 14px;
+
+  /** Custom colors for the graph */
+  --ref-bg: #37474f;
+  --ref-text: #80cbc4;
+  --ref-border: #80cbc4;
+  --commit-bg: #424242;
+  --commit-text: #e0e0e0;
+  --commit-border: #757575;
+  --line-main: #b0bec5;
+
+  /* Hover States */
+  --ref-bg-hover: #455a64; /* Brighter slate */
+  --ref-text-hover: #a7ffeb; /* Brighter teal */
+  --commit-bg-hover: #616161; /* Brighter gray */
+  --commit-glow: rgb(97 97 97 / 70%); /* Slightly darker gray */
+  --commit-text-hover: #fff; /* Brighter white */
+  --line-hover: #cfd8dc; /* Brighter gray for lines */
+  --glow-50: rgb(97 97 97 / 50%);
+}
+
+body {
+  background-color: var(--background-color);
+  color: var(--primary-text-color);
+  font-family: var(--font-body);
+  font-size: var(--font-size-base);
+  transition: background-color 0.3s ease;
+}
+
+#graph-canvas-section {
   position: relative;
   display: flex;
   justify-content: space-evenly;
@@ -8,21 +84,24 @@
   position: absolute;
   width: 100px;
   height: 30px;
-  background-color: #eee;
-  border: 1px solid #ccc;
+  background-color: var(--commit-bg);
+  border: 1px solid var(--commit-border);
+  color: var(--commit-text);
   border-radius: 5px;
   text-align: center;
   line-height: 30px;
   z-index: 1;
+  cursor: pointer;
+  transition: box-shadow 0.3s ease;
 }
-
 
 .graph-ref {
   position: absolute;
   width: 150px;
   height: 30px;
-  background-color: #81a8fd; 
-  color: #3b4261;
+  background-color: var(--ref-bg);
+  border: 1px solid var(--ref-border);
+  color: var(--ref-text);
   border-radius: 5px;
   text-align: left;
   line-height: 30px;
@@ -32,52 +111,79 @@
   padding: 2px;
 }
 
-.graph-ref-line{
+.graph-ref-line {
   position: absolute;
   z-index: 0;
-  border:1px solid #81a8fd;
+  border: 1px solid var(--ref-border);
 }
 
-.graph-line{
+.graph-line {
   position: absolute;
   z-index: 0;
-  border:2px solid #333;
+  border: 1px solid var(--line-main);
+}
+
+.graph-ref.hover,
+.graph-ref:hover {
+  background-color: var(--ref-bg-hover);
+  color: var(--ref-text-hover);
+  border-color: var(--ref-text-hover);
+}
+
+.graph-commit.hover,
+.graph-commit:hover {
+  background-color: var(--commit-bg-hover);
+  color: var(--commit-text-hover);
+  border-color: var(--commit-text-hover);
+  box-shadow: 0 0 10px 5px var(--commit-glow);
+}
+
+.graph-line:hover {
+  border-color: var(--line-hover);
+}
+
+.graph-commit.glow-50 {
+  box-shadow: 0 0 10px 5px var(--glow-50);
+}
+
+.graph-line.glow-50 {
+  border-color: var(--line-hover);
 }
 
 .graph-line-vertical {
-  border:none;
-  border-left: 2px solid #6d1010;
+  border: none;
+  border-left: 1px solid var(--line-main);
 }
 
 .graph-line-horizontal {
-  border:none;
-  border-top:2px solid #333;
+  border: none;
+  border-left: 1px solid var(--line-main);
 }
 
 .graph-line-top-right {
-  border:none;
-  border-top:2px solid #333;
-  border-right:2px solid #333;
+  border: none;
+  border-top: 1px solid var(--line-main);
+  border-right: 1px solid var(--line-main);
   border-radius: 0 10px 0 0;
 }
 
 .graph-line-top-left {
-  border:none;
-  border-top:2px solid #333;
-  border-left:2px solid #333;
+  border: none;
+  border-top: 1px solid var(--line-main);
+  border-left: 1px solid #333;
   border-radius: 10px 0 0;
 }
 
 .graph-line-bottom-right {
-  border:none;
-  border-bottom:2px solid #333;
-  border-right:2px solid #333;
+  border: none;
+  border-bottom: 1px solid var(--line-main);
+  border-right: 1px solid var(--line-main);
   border-radius: 0 0 10px;
 }
 
 .graph-line-bottom-left {
-  border:none;
-  border-bottom:2px solid #333;
-  border-left:2px solid #333;
+  border: none;
+  border-bottom: 1px solid var(--line-main);
+  border-left: 1px solid var(--line-main);
   border-radius: 0 0 0 10px;
 }

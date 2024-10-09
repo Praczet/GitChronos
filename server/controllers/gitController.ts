@@ -102,3 +102,20 @@ export const getTags = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json(response);
   }
 }
+
+export const getCommit = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const git = getGit(req, res);
+    if (!git) throw new Error('Failed to get git');
+    const parameters = HttpService.createResponseObject(req);
+    if (!parameters || !parameters.commitHash) throw new Error('Failed to get commit hash');
+    const commitHash = parameters.commitHash;
+    // const gitCommit = await git.show(commitHash);
+    const gitCommit = await git.show([commitHash, '--pretty=format:%H|%an|%ae|%ad|%s', '--name-status']);
+    const response = new ServerResponse('Commit fetched successfully', 'info', 200, gitCommit);
+    res.status(200).json(response);
+  } catch (error) {
+    const response = new ServerResponse('Failed to fetch commit', 'error', 500, null, error);
+    res.status(500).json(response);
+  }
+};
