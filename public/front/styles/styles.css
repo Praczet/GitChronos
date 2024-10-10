@@ -1,11 +1,31 @@
 :root {
-  --background-color: #f5f5f5;
-  --primary-text-color: #2e2e2e;
-  --secondary-text-color: #6c757d;
-  --accent-color: #007bff;
-  --card-background-color: #fff;
-  --border-color: #e0e0e0;
-  --hover-color: #e8f0fe;
+  /** Main colors for main tex and background */
+  --b0-0: #e2efe3;
+  --c0-0: #240a03;
+
+  /** The First access color palette */
+  --b1-1: #ee6c4d;
+  --b1-2: #f2b694;
+  --b1-3: #f8d5c1;
+  --c1-1: #f0f0f0;
+
+  /** The Second access color palette */
+  --b2-1: #00796b;
+  --b2-2: #00c6af;
+  --b2-3: #1effe5;
+  --c2-1: #e0fbfc;
+
+  /** special colors for ok, error, warning */
+  --c3-ok: var(--c1-1);
+  --c3-er: var(--c1-1);
+  --c3-wa: var(--c1-1);
+  --b3-ok: #5da25d;
+  --b3-er: #9c6d60;
+  --b3-wa: #536bac;
+
+  /** Elements colors base on palette */
+  --background-color: var(--b0-0);
+  --primary-text-color: var(--c0-0);
   --font-body: "Inter", sans-serif;
 
   /* Font sizes for readability */
@@ -14,61 +34,49 @@
   --font-size-small: 14px;
 
   /** Custom colors for the graph */
-  --ref-bg: #e0f7fa;
-  --ref-text: #00796b;
-  --ref-border: #00796b;
-  --commit-bg: #fff;
-  --commit-text: #212121;
-  --commit-border: #bdbdbd;
-  --line-main: #616161;
+  --ref-bg: var(--b2-1);
+  --ref-text: var(--c2-1);
+  --ref-border: var(--b2-1);
+  --commit-bg: var(--b1-1);
+  --commit-text: var(--c1-1);
+  --commit-border: var(--b1-1);
+  --line-main: var(--b1-1);
+
+  /** Tooltip colors */
+  --tooltip-bg: var(--b0-0);
+  --tooltip-text: var(--c0-0);
+  --tooltip-border-color: var(--b1-1);
 
   /* Hover States */
-  --ref-bg-hover: #b2ebf2; /* Darker cyan */
-  --ref-text-hover: #004d40; /* Darker teal */
-  --commit-bg-hover: #f5f5f5; /* Slightly darker gray */
-  --commit-glow: rgb(255 255 255 / 70%); /* Slightly darker gray */
-  --commit-text-hover: #424242; /* Darker gray */
-  --line-hover: #9e9e9e; /* Dark gray for lines */
-  --glow-50: rgb(255 255 255 / 50%);
+  --ref-bg-hover: var(--b2-2); /* Darker cyan */
+  --ref-text-hover: var(--c2-1); /* Darker teal */
+  --commit-bg-hover: var(--b1-2); /* Slightly darker gray */
+  --commit-text-hover: var(--c1-1); /* Darker gray */
+  --line-hover: var(--b1-2); /* Dark gray for lines */
 }
 
 [data-theme="dark"],
 :root.dark {
-  --background-color: #1c1c1e;
-  --primary-text-color: #f5f5f7;
-  --secondary-text-color: #a1a1a6;
-  --accent-color: #ff9500; /* Orange for a modern look */
-  --card-background-color: #2c2c2e;
-  --border-color: #3a3a3c;
-  --hover-color: #404040;
+  /** Main colors for main text and background */
+  --b0-0: #1e1e1e; /* Dark background */
+  --c0-0: #e6e6e6; /* Light text color for contrast */
 
-  /* Font sizes */
-  --font-size-base: 16px;
-  --font-size-large: 18px;
-  --font-size-small: 14px;
+  /** The First access color palette */
+  --b1-1: #ee6c4d; /* Keeping the same bright accent */
+  --b1-2: #bb4d33; /* Darker, muted version for depth */
+  --b1-3: #444; /* Darker neutral color for contrast */
+  --c1-1: #e6e6e6; /* Keeping text light against darker backgrounds */
 
-  /** Custom colors for the graph */
-  --ref-bg: #37474f;
-  --ref-text: #80cbc4;
-  --ref-border: #80cbc4;
-  --commit-bg: #424242;
-  --commit-text: #e0e0e0;
-  --commit-border: #757575;
-  --line-main: #b0bec5;
-
-  /* Hover States */
-  --ref-bg-hover: #455a64; /* Brighter slate */
-  --ref-text-hover: #a7ffeb; /* Brighter teal */
-  --commit-bg-hover: #616161; /* Brighter gray */
-  --commit-glow: rgb(97 97 97 / 70%); /* Slightly darker gray */
-  --commit-text-hover: #fff; /* Brighter white */
-  --line-hover: #cfd8dc; /* Brighter gray for lines */
-  --glow-50: rgb(97 97 97 / 50%);
+  /** The Second access color palette */
+  --b2-1: #00796b; /* Muted teal, same as in the light palette */
+  --b2-2: #00685d; /* Darker, subdued version */
+  --b2-3: #00a18e; /* Brighter teal for accents */
+  --c2-1: #b3ffff; /* Slightly muted light teal */
 }
 
 body {
-  background-color: var(--background-color);
-  color: var(--primary-text-color);
+  background-color: var(--b0-0);
+  color: var(--c0-0);
   font-family: var(--font-body);
   font-size: var(--font-size-base);
   transition: background-color 0.3s ease;
@@ -77,7 +85,11 @@ body {
 #graph-canvas-section {
   position: relative;
   display: flex;
-  justify-content: space-evenly;
+  justify-content: space-around;
+}
+
+.graph-canvas {
+  position: relative;
 }
 
 .graph-commit {
@@ -92,7 +104,7 @@ body {
   line-height: 30px;
   z-index: 1;
   cursor: pointer;
-  transition: box-shadow 0.3s ease;
+  transition: transform 0.3s ease;
 }
 
 .graph-ref {
@@ -135,16 +147,20 @@ body {
   background-color: var(--commit-bg-hover);
   color: var(--commit-text-hover);
   border-color: var(--commit-text-hover);
-  box-shadow: 0 0 10px 5px var(--commit-glow);
   z-index: 2;
+  transform: scale(1.2);
 }
 
+.graph-line.glow-50,
 .graph-line:hover {
   border-color: var(--line-hover);
+  filter: brightness(2.2);
 }
 
 .graph-commit.glow-50 {
-  box-shadow: 0 0 10px 5px var(--glow-50);
+  border-color: var(--line-hover);
+  color: var(--commit-text-hover);
+  transform: scale(1.05);
 }
 
 .graph-line.glow-50 {
@@ -187,4 +203,96 @@ body {
   border-bottom: 1px solid var(--line-main);
   border-left: 1px solid var(--line-main);
   border-radius: 0 0 0 10px;
+}
+
+.tt-commit h1 {
+  font-size: var(--font-size-large);
+}
+
+p.tt-message {
+  font-weight: bold;
+}
+
+p.tt-body-desc {
+  padding: 10px;
+  font-style: italic;
+}
+
+.tt-body {
+  background-color: var(--b1-3);
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.tt-info {
+  display: flex;
+  padding: 10px;
+  gap: 40px;
+  justify-content: space-between;
+}
+
+.tt-author > div:not(:first-child) {
+  margin-left: 10px;
+  font-size: var(--font-size-small);
+}
+
+.tt-parents > div:not(:first-child) {
+  font-size: var(--font-size-small);
+  text-align: right;
+}
+
+.tt-label {
+  font-weight: bold;
+}
+
+.tt-files-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  margin-left: 10px;
+  margin-top: 10px;
+}
+
+.tt-files-list li {
+  line-height: var(--font-size-large);
+  margin-bottom: 5px;
+}
+
+.tt-files span.commit-file-status,
+.tt-files-list li span.commit-file-status {
+  font-weight: bolder;
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  line-height: 1rem;
+  border-radius: 2px;
+  text-align: center;
+}
+
+.tt-files {
+  line-height: 1rem;
+}
+
+.commit-file-status.status-a {
+  color: var(--c3-ok);
+  background-color: var(--b3-ok);
+}
+
+.commit-file-status.status-m {
+  color: var(--c3-wa);
+  background-color: var(--b3-wa);
+  font-size: 0.8rem;
+}
+
+.commit-file-status.status-d {
+  color: var(--c3-er);
+  background-color: var(--b3-er);
+}
+
+.commit-path {
+  opacity: 0.5;
+}
+
+.commit-file-name {
+  font-weight: bold;
 }

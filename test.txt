@@ -1,0 +1,231 @@
+
+    // graphCanvas.innerHTML = '';
+    // this.commits = graph;
+    // const that = this;
+    // if (this.commits.length === 0) { console.error('No graph data'); return; }
+    //
+    // const graphPre = document.getElementById('graph-pre');
+    // this.commitPositionMap = {};
+    // this.commitGrid = [];
+    // let row = 0;
+    //
+    // this.commits.forEach((commit, index) => {
+    //   let cPos = this.commitPositionMap[commit.commit];
+    //   if (!cPos) {
+    //     this.commitPositionMap[commit.commit] = { x: branchesMarginX + 0, y: index * shiftY, row: row };
+    //     cPos = this.commitPositionMap[commit.commit];
+    //   }
+    //   const pgCommit = this.commitGrid.find((c) => c.pCommit === commit.commit);
+    //   if (pgCommit) { pgCommit.yP = cPos.y; }
+    //
+    //   if (commit.parents && commit.parents.length > 0) {
+    //     commit.parents.forEach((parent, pIndex) => {
+    //       let pPos = this.commitPositionMap[parent];
+    //       if (!pPos) {
+    //
+    //         this.commitPositionMap[parent] = { x: (shiftX * pIndex) + cPos.x, y: (index + 1) * shiftY, row: cPos.row + pIndex };
+    //         pPos = this.commitPositionMap[parent];
+    //         if (cPos.x === pPos.x) {
+    //           let tCommit = this.commitGrid.find((c) => c.commit === commit.commit);
+    //           if (!tCommit) this.commitGrid.push({ row: cPos.row, yC: cPos.y, yP: pPos.y, pCommit: parent, commit: commit.commit });
+    //         } else {
+    //         }
+    //       } else {
+    //         if (pPos.y < cPos.y) {
+    //           pPos.y = (index + 1) * shiftY;
+    //           const pEl = document.getElementById(`graph-commit-${parent}`);
+    //           if (pEl) pEl.style.top = `${pPos.y}px`;
+    //           let tCommit = this.commitGrid.find((c) => c.commit === commit.commit && c.pCommit === parent);
+    //           if (tCommit) tCommit.yP = pPos.y;
+    //         }
+    //       }
+    //     });
+    //
+    //   }
+    // });
+    //
+    // if (graphPre) {
+    //   graphPre.textContent = JSON.stringify(this.commitGrid, null, 2);
+    // }
+    // if (this.selectedProject?.checkOverlaps) __checkOverlapping();
+    // __drawCommits();
+    // __drawLines();
+    // __drawRefs();
+    //
+    //
+    // function __checkOverlapping() {
+    //   const rows = Array.from(new Set(that.commitGrid.map((c) => c.row)));
+    //   const maxRow = Math.max(...rows);
+    //   __setGraphWidth(maxRow);
+    //   rows.forEach((row) => {
+    //     let rowCommits = that.commitGrid.filter((c) => c.row === row);
+    //     rowCommits.forEach((c) => {
+    //       let double = rowCommits.filter((cc) => c.yC < cc.yC && c.yP > cc.yP && cc.commit !== c.commit);
+    //       if (double.length > 0) {
+    //         let tCommitPos = that.commitPositionMap[c.commit];
+    //         if (tCommitPos) {
+    //           double.forEach((dbl) => {
+    //             __shiftCommit(dbl.commit, row + 1);
+    //           });
+    //         }
+    //       }
+    //     });
+    //   });
+    // }
+    // function __setGraphWidth(maxRow: number) {
+    //   let width = 0;
+    //   let inMaxRow = that.commitGrid.filter((c) => c.row === maxRow);
+    //   if (inMaxRow.length > 0) {
+    //     let lastCommit = inMaxRow[inMaxRow.length - 1];
+    //     let lastCommitPos = that.commitPositionMap[lastCommit.commit];
+    //     if (lastCommitPos) width = lastCommitPos.x + dx;
+    //   }
+    //   graphCanvas!.style.width = `${width}px`;
+    // }
+    //
+    // function __shiftCommit(commit: string, row: number) {
+    //   // cPos.x = tCommitPos.x + shiftX;
+    //   // tCommitPos.row = tCommitPos.row + 1;
+    //   let tCommitPos = that.commitPositionMap[commit];
+    //   if (!tCommitPos) return;
+    //   tCommitPos.x = tCommitPos.x + shiftX;
+    //   tCommitPos.row = row;
+    //   let cCommit = that.commits.find((c) => c.commit === commit);
+    //   if (cCommit) {
+    //     cCommit.parents.forEach((parent, pIndex) => {
+    //       // console.log('parent', parent);
+    //       let pPos = that.commitPositionMap[parent];
+    //       if (pPos && pPos.row >= (row - 1)) __shiftCommit(parent, pPos.row + 1);
+    //     });
+    //   }
+    //
+    // }
+    //
+    // function __drawCommits() {
+    //   const fragment = document.createDocumentFragment(); // Use a DocumentFragment
+    //   that.commits.forEach((commit) => {
+    //     const cPos = that.commitPositionMap[commit.commit];
+    //     if (!cPos) { console.error('Commit position not found'); return; }
+    //     const commitDiv = document.createElement('div');
+    //     commitDiv.classList.add('graph-commit');
+    //     commitDiv.style.left = `${cPos.x}px`;
+    //     commitDiv.style.top = `${cPos.y}px`;
+    //     commitDiv.textContent = commit.commit;
+    //     commitDiv.id = `graph-commit-${commit.commit}`;
+    //     commitDiv.addEventListener('mouseenter', () => {
+    //       console.log('hover', commit);
+    //       if (commit.parents && commit.parents.length > 0 && commit.parents[0] !== '') {
+    //         commit.parents.forEach((parent) => {
+    //           const line = document.querySelector(`.graph-line[data-parent="${parent}"][data-child="${commit.commit}"]`);
+    //           if (line) line.classList.add('glow-50');
+    //           const parentDiv = document.getElementById(`graph-commit-${parent}`);
+    //           if (parentDiv) parentDiv.classList.add('glow-50');
+    //
+    //         });
+    //       }
+    //
+    //       that.setToolTipContentCommit(commit, false);
+    //       if (!commit.message) {
+    //         that.loadCommitData(commit.commit, 'loadToolTip');
+    //       }
+    //       that.tooltip.show(commitDiv, { dX: dx * 1.1, dY: 0 });
+    //     });
+    //     commitDiv.addEventListener('mouseleave', () => {
+    //       if (commit.parents && commit.parents.length > 0 && commit.parents[0] !== '') {
+    //         commit.parents.forEach((parent) => {
+    //           const line = document.querySelector(`.graph-line[data-parent="${parent}"][data-child="${commit.commit}"]`);
+    //           if (line) line.classList.remove('glow-50');
+    //           const parentDiv = document.getElementById(`graph-commit-${parent}`);
+    //           if (parentDiv) parentDiv.classList.remove('glow-50');
+    //         });
+    //       }
+    //       that.tooltip.hide();
+    //     });
+    //     fragment.appendChild(commitDiv); // Add to fragment instead of directly to DOM
+    //   });
+    //   graphCanvas!.appendChild(fragment); // Append all at once
+    // }
+    //
+    // function __drawRefs() {
+    //   const fragment = document.createDocumentFragment(); // Use a DocumentFragment
+    //   that.commits.forEach((commit) => {
+    //     const cPos = that.commitPositionMap[commit.commit];
+    //     if (!cPos) { console.error('Commit position not found'); return; }
+    //     if (commit.refs !== "") {
+    //       const refDiv = document.createElement('div');
+    //       refDiv.classList.add('graph-ref');
+    //       refDiv.style.left = `${refsMarginX}px`;
+    //       refDiv.style.top = `${cPos.y}px`;
+    //       refDiv.textContent = commit.refs;
+    //       fragment.appendChild(refDiv); // Add to fragment instead of directly to DOM
+    //
+    //       const refDivLine = document.createElement('div');
+    //       refDivLine.classList.add('graph-ref-line');
+    //       refDivLine.style.left = `${refsMarginX + refsX}px`;
+    //       refDivLine.style.top = `${cPos.y + dy / 2}px`;
+    //       refDivLine.style.width = `${cPos.x - refsMarginX}px`;
+    //       fragment.appendChild(refDivLine); // Add to fragment instead of directly to DOM
+    //
+    //     }
+    //   });
+    //   graphCanvas!.appendChild(fragment); // Append all at once
+    // }
+    //
+    // function __drawLines() {
+    //   const fragment = document.createDocumentFragment(); // Use a DocumentFragment
+    //   that.commits.forEach((commit) => {
+    //     let cPos = that.commitPositionMap[commit.commit];
+    //     if (commit.parents && commit.parents.length > 0 && commit.parents[0] !== '') {
+    //       commit.parents.forEach((parent, pIndex) => {
+    //         let pPos = that.commitPositionMap[parent];
+    //         const line = document.createElement('div');
+    //         line.classList.add('graph-line');
+    //         line.dataset.parent = parent;
+    //         line.dataset.child = commit.commit;
+    //         if (cPos.x === pPos.x && cPos.y < pPos.y) {
+    //           line.classList.add('graph-line-vertical');
+    //           line.style.left = `${cPos.x + dx / 2}px`;
+    //           line.style.top = `${cPos.y + dy}px`;
+    //           line.style.height = `${pPos.y - cPos.y - dy}px`;
+    //         }
+    //         // Add other conditions here (top-right, bottom-right)
+    //         if (cPos.x === pPos.x && cPos.y < pPos.y) {
+    //           line.classList.add('graph-line-vertical');
+    //           line.style.left = `${cPos.x + dx / 2}px`;
+    //           line.style.top = `${cPos.y + dy}px`;
+    //           line.style.height = `${pPos.y - cPos.y - dy}px`;
+    //         }
+    //         if (cPos.x < pPos.x) {
+    //           line.classList.add('graph-line-top-right');
+    //           line.style.left = `${cPos.x + dx}px`;
+    //           line.style.top = `${cPos.y + dy / 2}px`;
+    //           line.style.width = `${pPos.x - cPos.x - dx / 2}px`;
+    //           line.style.height = `${pPos.y - cPos.y}px`;
+    //         }
+    //
+    //         if (cPos.x > pPos.x) {
+    //           line.classList.add('graph-line-bottom-right');
+    //           line.style.left = `${pPos.x + dx}px`;
+    //           line.style.top = `${cPos.y + dy}px`;
+    //           line.style.width = `${cPos.x - pPos.x - dx / 2}px`;
+    //           line.style.height = `${pPos.y - cPos.y - dy / 2}px`;
+    //         }
+    //         line.addEventListener('mouseenter', () => {
+    //           const child = document.getElementById(`graph-commit-${line.dataset.child}`);
+    //           const parent = document.getElementById(`graph-commit-${line.dataset.parent}`);
+    //           if (child) child.classList.add('hover');
+    //           if (parent) parent.classList.add('hover');
+    //
+    //         });
+    //         line.addEventListener('mouseleave', () => {
+    //           const child = document.getElementById(`graph-commit-${line.dataset.child}`);
+    //           const parent = document.getElementById(`graph-commit-${line.dataset.parent}`);
+    //           if (child) child.classList.remove('hover');
+    //           if (parent) parent.classList.remove('hover');
+    //         });
+    //         fragment.appendChild(line); // Add to fragment instead of directly to DOM
+    //       });
+    //     }
+    //   });
+    //   graphCanvas!.appendChild(fragment); // Append all at once
+    // }

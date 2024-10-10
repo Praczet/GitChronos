@@ -116,6 +116,14 @@ export const getCommit = async (req: Request, res: Response): Promise<void> => {
     if (gitCommit && gitCommit !== '') {
       let lData = gitCommit.split('|=!=|');
       if (lData && lData.length === 7) {
+        const lfiles = lData[6].trim().split('\n');
+        const temp: { status: string, file: string }[] = [];
+        lfiles.forEach((file: string) => {
+          let parts = file.trim().split('\t');
+          if (parts.length === 2) {
+            temp.push({ status: parts[0], file: parts[1] });
+          }
+        });
         resData = {
           commit: lData[0],
           author: lData[1],
@@ -123,10 +131,9 @@ export const getCommit = async (req: Request, res: Response): Promise<void> => {
           cDate: lData[3],
           message: lData[4],
           body: lData[5],
-          files: lData[6].trim().split('\n').map((file: string) => file.split('\t'))
+          files: temp
         }
       }
-
     }
     const response = new ServerResponse('Commit fetched successfully', 'info', 200, resData);
     res.status(200).json(response);

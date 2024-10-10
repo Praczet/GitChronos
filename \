@@ -1,0 +1,21 @@
+import ToolTip from "./ToolTip.js";
+import { ICommit } from "./IInterfaces.js";
+
+
+class Graph {
+  private commitPositionMap: Record<string, { x: number, y: number, row: number }> = {};
+  private commitGrid: { commit: string, row: number, yC: number, yP: number, pCommit: string }[] = [];
+  private toolTip: ToolTip;
+  private commits: ICommit[] = [];
+  private element: HTMLElement;
+  private application: any;;
+
+
+  constructor(app: any, commits: ICommit[], element: HTMLElement) {
+    this.toolTip = new ToolTip();
+    this.element = element;
+    this.commits = commits;
+  }
+}
+
+export default Graph;

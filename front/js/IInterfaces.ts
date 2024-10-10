@@ -1,4 +1,4 @@
-export interface IGraph {
+export interface ICommit {
   commit: string,
   parents: string[],
   refs: string,
@@ -7,5 +7,5 @@ export interface IGraph {
   message?: string,
   email?: string,
   body?: string,
-  files?: string[][]
+  files?: { status: string, file: string }[]
 }

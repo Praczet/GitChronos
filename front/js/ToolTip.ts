@@ -82,21 +82,31 @@ class ToolTip {
 
     // Show the tooltip with opacity transition
     this.tooltipElement.style.opacity = '1';
+    this.tooltipElement.style.pointerEvents = 'auto';
   }
 
   public hide(): void {
     // Hide the tooltip with opacity transition
     this.tooltipElement.style.opacity = '0';
+    this.tooltipElement.style.pointerEvents = 'none';
   }
 
   // Adjust the indicator triangle based on position
   private adjustIndicator(direction: TPosition): void {
     this.indicatorElement.className = `tooltip-indicator tooltip-indicator-${direction}`;
   }
-  public setContent(newContent: string): void {
+  public setContent(newContent: string, elID?: string): void {
     this.content = newContent;
     if (!this.contentElement) return;
-    this.contentElement.innerHTML = `${this.content}`;
+    if (!elID) {
+      this.contentElement.innerHTML = `${this.content}`;
+      return;
+    }
+    const el = this.contentElement.querySelector(`#${elID}`);
+    // console.log('setContent:el', el);
+    if (!el) return;
+    // console.log('content', this.content);
+    el.innerHTML = `${this.content}`;
   }
 }
 
