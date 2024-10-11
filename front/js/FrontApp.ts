@@ -13,16 +13,15 @@ class FrontApp {
   private theme: 'light' | 'dark' = 'light';
   public commits: ICommit[] = [];
   public tooltip = new ToolTip();
+  public selectedCommit: ICommit | null = null;
 
   constructor() {
     document.addEventListener('DOMContentLoaded', () => {
       this.initializeDOM();
       this.fetchProjects();
-      // this.fetchCommits("");
     });
   }
 
-  // Method to initialize the DOM
   private initializeDOM(): void {
     const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
 
@@ -31,10 +30,6 @@ class FrontApp {
     } else {
       this.switchTheme('light');
     }
-    // const stackContainer = document.getElementById('stack-container');
-    // if (stackContainer) {
-    //   this.renderCards(stackContainer);
-    // }
     const themeSwitch = document.getElementById('app-header');
     if (themeSwitch) {
       themeSwitch.addEventListener('click', () => {
@@ -54,42 +49,6 @@ class FrontApp {
     this.theme = theme;
   }
 
-  // // Method to render cards in the stack container
-  // private renderCards(stackContainer: HTMLElement): void {
-  //   // Example code to create cards using fetched commits
-  //   fetch('/api/commits')
-  //     .then((response) => response.json())
-  //     .then((data) => {
-  //       if (data.all) {
-  //         data.all.forEach((commit: any) => {
-  //           const card = new Card(commit.message);
-  //           card.addHoverEffect();
-  //           stackContainer.appendChild(card.getElement());
-  //         });
-  //       }
-  //     })
-  //     .catch((error) => console.error('Error fetching commits:', error));
-  // }
-
-  // Method to fetch projects and render them
-  // private fetchProjects(): void {
-  //   fetch('/api/projects')
-  //     .then((response) => response.json())
-  //     .then((dResponse: IServerResponse) => {
-  //       const response = new ServerResponse(dResponse);
-  //       console.log(response);
-  //       if (response.isError()) {
-  //         console.error(response.message);
-  //         return;
-  //       }
-  //       this.projects = response.data ?? [];
-  //       this.renderProjects(response.data ?? []);
-  //     })
-  //     .catch((error) => console.error('Unexpected error:', error));
-  // }
-
-
-  // Method to render the projects list
   private renderProjects(projects: IProjectConfig[]): void {
     const projectsUl = document.getElementById('projects-list');
     let counter = 1;
@@ -101,9 +60,11 @@ class FrontApp {
         projectLi.textContent = project.name;
         projectLi.id = project.uuid ? `project-${project.uuid}` : '';
         projectLi.classList.add('project');
-        projectLi.classList.remove('selected');
         projectLi.addEventListener('click', () => {
+          projectsUl.querySelectorAll('li').forEach((li) => li.classList.remove('selected'));
+          projectsUl.classList.add('selected');
           projectLi.classList.add('selected');
+          this.toggleASider(true);
           this.selectedProject = project;
           if (this.selectedProject.theme !== undefined && this.theme !== this.selectedProject.theme)
             this.switchTheme(this.selectedProject.theme);
@@ -115,6 +76,18 @@ class FrontApp {
       console.error('Projects list not found');
     }
   }
+  public toggleASider(forceFold: boolean = false): void {
+    const aside = document.getElementById('app-sidebar');
+    if (!aside) return;
+    if (forceFold) { aside.classList.add('sidebar-folded'); return; }
+    aside.classList.toggle('sidebar-folded');
+  }
+
+  public commitClicked(commit: ICommit): void {
+    this.selectedCommit = commit;
+    console.log('Commit clicked:', commit);
+  }
+
   public getCurrentProject(): IProjectConfig | null {
     return this.selectedProject;
   }
@@ -139,7 +112,7 @@ class FrontApp {
 
   private async fetchProjects(): Promise<void> {
     try {
-      const data = await HttpService.Fetch < IServerResponse < IProjectConfig[] >> ('/api/projects');
+      const data = await HttpService.Fetch<IServerResponse<IProjectConfig[]>>('/api/projects');
       const response = new ServerResponse(data);
       if (response.isError()) {
         console.error(response.message);
@@ -153,7 +126,7 @@ class FrontApp {
   }
   private async fetchCommits(projectPath: string, branch: string = ""): Promise<void> {
     try {
-      const data = await HttpService.Fetch < IServerResponse < Record < string, any>>> ('/api/git/commits', { path: projectPath, branch: branch });
+      const data = await HttpService.Fetch<IServerResponse<Record<string, any>>>('/api/git/commits', { path: projectPath, branch: branch });
       const response = new ServerResponse(data);
       if (response.isError()) {
         console.error(response.message);
@@ -165,7 +138,7 @@ class FrontApp {
   }
   private async fetchBranches(project: IProjectConfig): Promise<void> {
     try {
-      const data = await HttpService.Fetch < IServerResponse < string[] >> ('/api/git/branches', { path: project.path });
+      const data = await HttpService.Fetch<IServerResponse<string[]>>('/api/git/branches', { path: project.path });
       const response = new ServerResponse(data);
       if (response.isError()) {
         console.error(response.message);
@@ -179,7 +152,7 @@ class FrontApp {
   }
   private async fetchLogGraph(project: IProjectConfig): Promise<void> {
     try {
-      const data = await HttpService.Fetch < IServerResponse < string[] >> ('/api/git/graph', { path: project.path });
+      const data = await HttpService.Fetch<IServerResponse<string[]>>('/api/git/graph', { path: project.path });
       const response = new ServerResponse(data);
       if (response.isError()) {
         console.error(response.message);
@@ -326,7 +299,7 @@ class FrontApp {
 
   public async loadCommitData(commit: string, returnAction: string = ""): Promise<void> {
     try {
-      const data = await HttpService.Fetch < IServerResponse < ICommit >> (
+      const data = await HttpService.Fetch<IServerResponse<ICommit>>(
         '/api/git/commit',
         { commitHash: commit, path: this.selectedProject?.path ?? "" },
         { method: "POST" }

@@ -42,6 +42,7 @@ class Graph {
     this.drawCommits();
     this.drawLines();
     this.drawRefs();
+    this.setGraphSize();
 
   }
 
@@ -104,8 +105,6 @@ class Graph {
 
   private checkOverlaps() {
     const rows = Array.from(new Set(this.commitGrid.map((c) => c.row)));
-    const maxRow = Math.max(...rows);
-    this.setGraphWidth(maxRow);
     rows.forEach((row) => {
       let rowCommits = this.commitGrid.filter((c) => c.row === row);
       rowCommits.forEach((c) => {
@@ -159,6 +158,12 @@ class Graph {
           });
         }
         this.app!.tooltip.hide();
+      });
+      commitDiv.addEventListener('click', () => {
+        this.element!.querySelectorAll('.graph-commit').forEach((c) => { c.classList.remove('selected'); });
+        commitDiv.classList.add('selected');
+        this.app.commitClicked(commit);
+
       });
       fragment.appendChild(commitDiv); // Add to fragment instead of directly to DOM
     });
@@ -248,16 +253,20 @@ class Graph {
     this.element!.appendChild(fragment); // Append all at once
   }
 
-  private setGraphWidth(maxRow: number) {
+  private setGraphSize() {
+    this.setGraphWidth();
+    // this.setGraphHeight();
+  }
+  private setGraphHeight() {
     if (!this.element) return;
-    let width = 0;
-    let inMaxRow = this.commitGrid.filter((c) => c.row === maxRow);
-    if (inMaxRow.length > 0) {
-      let lastCommit = inMaxRow[inMaxRow.length - 1];
-      let lastCommitPos = this.commitPositionMap[lastCommit.commit];
-      if (lastCommitPos) width = lastCommitPos.x + this.dx;
-    }
-    this.element.style.width = `${width}px`;
+    const maxYPos = Math.max(...Object.values(this.commitPositionMap).map((c) => c.y));
+    this.element.style.height = `${maxYPos + this.dy}px`;
+  }
+
+  private setGraphWidth() {
+    if (!this.element) return;
+    const maxXPos = Math.max(...Object.values(this.commitPositionMap).map((c) => c.x));
+    this.element.style.width = `${maxXPos + this.dx}px`;
   }
 
   private shiftCommit(commit: string, row: number) {

@@ -37,11 +37,13 @@ class ToolTip {
       dX?: number;
       dY?: number;
       content?: string;
+      dIndY?: number;
     } = {}
   ): void {
     let position: TPosition = options.position ?? this.defaultPosition;
     let top: number;
     let left: number;
+    let dIndY: number = options.dIndY ?? 0;
 
     if (targetElement instanceof HTMLElement) {
       // If target is an HTML element, get its bounding box and calculate position

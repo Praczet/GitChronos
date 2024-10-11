@@ -20,6 +20,7 @@
   height: 0;
   border-style: solid;
   position: absolute;
+  display: none;
 }
 
 .tooltip-indicator.tooltip-indicator-left {
