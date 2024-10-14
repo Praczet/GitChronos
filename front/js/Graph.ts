@@ -234,11 +234,12 @@ class Graph {
       const cPos = this.commitPositionMap[commit.commit];
       if (!cPos) { console.error('Commit position not found'); return; }
       if (commit.refs !== "") {
+        let refText = this.getRefConntent(commit.refs);
         const refDiv = document.createElement('div');
         refDiv.classList.add('graph-ref');
         refDiv.style.left = `${this.refsMarginX}px`;
         refDiv.style.top = `${cPos.y}px`;
-        refDiv.textContent = commit.refs;
+        refDiv.innerHTML = refText;
         fragment.appendChild(refDiv); // Add to fragment instead of directly to DOM
 
         const refDivLine = document.createElement('div');
@@ -251,6 +252,37 @@ class Graph {
       }
     });
     this.element!.appendChild(fragment); // Append all at once
+  }
+
+  private getRefConntent(ref: string) {
+    let tRef = ref.replace(/\((.*)\)/, '$1');
+    let aRefs = tRef.split(',');
+    let wasOrgin = false;
+    let wasLocal = false;
+    aRefs.forEach((ref, zIndex) => {
+      ref = ref.trim();
+      ref = ref.replace(/HEAD/, `<span class="graph-ref-head">${this.app.icons.HEAD}</span>`);
+      if (ref.match(/origin\//)) {
+        if (!wasOrgin) {
+          ref = ref.replace(/origin\//, `<span class="graph-ref-origin">${this.app.icons.ORIGIN}</span>`);
+          wasOrgin = true;
+        } else {
+          ref = ref.replace(/origin\//, '');
+        }
+      } else if (ref.match(/tag:(.*)/)) {
+        ref = ref.replace(/tag:(.*)/, `<span class="graph-ref-tag">${this.app.icons.TAG}<span class='graph-ref-tag-number'>$1</span></span>`);
+      } else {
+        if (!wasLocal) {
+          ref = ref.replace(/(.*)/, `${this.app.icons.LOCAL}$1`);
+          wasLocal = true;
+        } else {
+          ref = ref.replace(/(.*)/, `$1`);
+        }
+      }
+      aRefs[zIndex] = ref;
+    });
+    let refText = aRefs.join(' ');
+    return refText;
   }
 
   private setGraphSize() {

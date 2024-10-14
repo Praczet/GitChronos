@@ -18,10 +18,24 @@ class FrontApp {
   private mainSection: HTMLElement | null = null;
   private view: "graph" | "commit" | "file" = 'graph';
 
+  public icons = {
+    TAG: '',
+    HEAD: '',
+    ORIGIN: '',
+    LOCAL: ''
+  };
+  private iconSrcFile = {
+    TAG: 'tag.svg',
+    HEAD: 'head.svg',
+    ORIGIN: 'git-origin.svg',
+    LOCAL: 'git.svg'
+  }
+
   constructor() {
     document.addEventListener('DOMContentLoaded', () => {
       this.initializeDOM();
       this.fetchProjects();
+      this.fetchIcons();
     });
   }
 
@@ -83,6 +97,7 @@ class FrontApp {
       console.error('Projects list not found');
     }
   }
+
   public toggleASider(forceFold: boolean = false): void {
     const aside = document.getElementById('app-sidebar');
     if (!aside) return;
@@ -117,27 +132,9 @@ class FrontApp {
     return this.selectedProject;
   }
 
-  private renderBranches(branches: string[]): void {
-    const branchesUl = document.getElementById('branches-list');
-    if (branchesUl) {
-      branches.forEach((branch) => {
-        const branchLi = document.createElement('li');
-        branchLi.textContent = branch;
-        branchLi.classList.add('branch');
-        branchLi.addEventListener('click', () => {
-          // console.log('Selected branch:', branch);
-          this.fetchCommits(this.selectedProject?.path ?? "", branch);
-        });
-        branchesUl.appendChild(branchLi);
-      });
-    } else {
-      console.error('Branches list not found');
-    }
-  }
-
   private async fetchProjects(): Promise<void> {
     try {
-      const data = await HttpService.Fetch<IServerResponse<IProjectConfig[]>>('/api/projects');
+      const data = await HttpService.Fetch < IServerResponse < IProjectConfig[] >> ('/api/projects');
       const response = new ServerResponse(data);
       if (response.isError()) {
         console.error(response.message);
@@ -149,9 +146,27 @@ class FrontApp {
       console.error('Unexpected error:', error);
     }
   }
+
+  private async fetchIcons(): Promise<void> {
+    try {
+      const keys = Object.keys(this.icons);
+      keys.forEach(async (key) => {
+        const data = await HttpService.Fetch < IServerResponse < IProjectConfig[] >> ('/api/resources/getSVG', { path: this.iconSrcFile[key as "HEAD" | "ORIGIN" | "LOCAL"] });
+        const response = new ServerResponse(data);
+        if (response.isError()) {
+          console.error(response.message);
+          return;
+        }
+        this.icons[key as "ORIGIN" | "HEAD" | "LOCAL"] = response.data ?? '<span class="svg-not-found icon-head"></span>';
+      });
+    } catch (error) {
+      console.error('Unexpected error:', error);
+    }
+  }
+
   private async fetchCommits(projectPath: string, branch: string = ""): Promise<void> {
     try {
-      const data = await HttpService.Fetch<IServerResponse<Record<string, any>>>('/api/git/commits', { path: projectPath, branch: branch });
+      const data = await HttpService.Fetch < IServerResponse < Record < string, any>>> ('/api/git/commits', { path: projectPath, branch: branch });
       const response = new ServerResponse(data);
       if (response.isError()) {
         console.error(response.message);
@@ -161,23 +176,10 @@ class FrontApp {
       console.error('Unexpected error:', error);
     }
   }
-  private async fetchBranches(project: IProjectConfig): Promise<void> {
-    try {
-      const data = await HttpService.Fetch<IServerResponse<string[]>>('/api/git/branches', { path: project.path });
-      const response = new ServerResponse(data);
-      if (response.isError()) {
-        console.error(response.message);
-        return;
-      }
-      this.renderBranches(response.data ?? []);
-      // this.renderBranches(response.data?.branches ?? []);
-    } catch (error) {
-      console.error('Unexpected error:', error);
-    }
-  }
+
   private async fetchLogGraph(project: IProjectConfig): Promise<void> {
     try {
-      const data = await HttpService.Fetch<IServerResponse<string[]>>('/api/git/graph', { path: project.path });
+      const data = await HttpService.Fetch < IServerResponse < string[] >> ('/api/git/graph', { path: project.path });
       const response = new ServerResponse(data);
       if (response.isError()) {
         console.error(response.message);
@@ -331,7 +333,7 @@ class FrontApp {
 
   public async loadCommitData(commit: string, returnAction: string = ""): Promise<void> {
     try {
-      const data = await HttpService.Fetch<IServerResponse<ICommit>>(
+      const data = await HttpService.Fetch < IServerResponse < ICommit >> (
         '/api/git/commit',
         { commitHash: commit, path: this.selectedProject?.path ?? "" },
         { method: "POST" }

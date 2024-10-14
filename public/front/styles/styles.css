@@ -67,6 +67,9 @@
   --timeline-container-bg: var(
     --b1-3
   ); /* Using the first access color palette */
+
+  --icon-fill: var(--b0-0); /* Using the first access color palette */
+  --icon-stroke: var(--b0-0); /* Using the first access color palette */
 }
 
 [data-theme="dark"],
@@ -129,7 +132,9 @@ body {
   text-overflow: ellipsis;
   overflow: hidden;
   padding: 2px;
-  /* font-size: 0.7rem; */
+  display: flex;
+  align-items: center;
+  padding-left: 5px;
 }
 
 .graph-ref-line {
@@ -531,4 +536,21 @@ html {
   bottom: 0;
   left: 0;
   z-index: 20;
+}
+
+.graph-ref svg {
+  width: 21px;
+  margin: 0 5px;
+
+  /* margin: 4px; */
+}
+
+.graph-ref-tag svg,
+.graph-ref-head svg {
+  width: 12px;
+}
+
+.graph-ref-tag {
+  display: flex;
+  align-items: center;
 }

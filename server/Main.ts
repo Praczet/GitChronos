@@ -1,6 +1,7 @@
 import express, { Application } from 'express';
 import projectRoutes from './routes/projectRoutes.js';
 import gitRoutes from './routes/gitRoutes.js';
+import resourcesRoutes from './routes/resourcesRoute.js';
 
 class Main {
   public app: Application;
@@ -26,6 +27,7 @@ class Main {
     // Use modularized routes
     this.app.use('/api/projects', projectRoutes);
     this.app.use('/api/git', gitRoutes);
+    this.app.use('/api/resources', resourcesRoutes);
   }
 
   // Method to start the server

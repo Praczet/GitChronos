@@ -8,7 +8,7 @@
   position: absolute;
   display: inline-block;
   z-index: 1000;
-  min-width: 200px;
+  min-width: 400px;
   transition:
     top 0.3s ease,
     left 0.3s ease,
