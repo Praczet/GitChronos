@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D File Browser</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f0f0f0;
+      margin: 0;
+    }
+
+    .file-browser {
+      perspective: 200px;
+    }
+
+    .file {
+      width: 200px;
+      height: 100px;
+      background-color: #4CAF50;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 10px 0;
+      transform-style: preserve-3d;
+      transition: transform 0.5s;
+    }
+
+    .file.current {
+      transform: translateZ(0);
+    }
+
+    .file.previous {
+      transform: translateZ(-100px) rotateX(30deg);
+    }
+
+    .file.next {
+      transform: translateZ(-100px) rotateX(-30deg);
+    }
+  </style>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const files = document.querySelectorAll('.file');
+      let currentIndex = 0;
+
+      function updateFiles() {
+        files.forEach((file, index) => {
+          file.classList.remove('current', 'previous', 'next');
+          if (index === currentIndex) {
+            file.classList.add('current');
+          } else if (index < currentIndex) {
+            file.classList.add('previous');
+          } else {
+            file.classList.add('next');
+          }
+        });
+      }
+
+      updateFiles();
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'ArrowUp' && currentIndex > 0) {
+          currentIndex--;
+          updateFiles();
+        } else if (event.key === 'ArrowDown' && currentIndex < files.length - 1) {
+          currentIndex++;
+          updateFiles();
+        }
+      });
+    });
+  </script>
+</head>
+
+<body>
+  <div class="file-browser">
+    <div class="file" id="file1">File 1</div>
+    <div class="file" id="file2">File 2</div>
+    <div class="file" id="file3">File 3</div>
+    <div class="file" id="file4">File 4</div>
+    <div class="file" id="file5">File 5</div>
+  </div>
+</body>
+
+</html>

@@ -5,6 +5,7 @@ import { IProjectConfig } from '../../server/config/ConfigInterfaces.js';
 import HttpService from '../../server/models/HttpService.js';
 import { ICommit } from './IInterfaces.js';
 import Graph from './Graph.js';
+import CommitTimeline from './CommitTimeline.js';
 import ToolTip from './ToolTip.js';
 
 class FrontApp {
@@ -13,7 +14,9 @@ class FrontApp {
   private theme: 'light' | 'dark' = 'light';
   public commits: ICommit[] = [];
   public tooltip = new ToolTip();
-  public selectedCommit: ICommit | null = null;
+  public selectedCommit?: ICommit;
+  private mainSection: HTMLElement | null = null;
+  private view: "graph" | "commit" | "file" = 'graph';
 
   constructor() {
     document.addEventListener('DOMContentLoaded', () => {
@@ -40,6 +43,10 @@ class FrontApp {
           this.switchTheme('dark');
         }
       });
+    }
+    this.mainSection = document.getElementById('main-section');
+    if (!this.mainSection) {
+      console.error('Main section not found');
     }
   }
 
@@ -85,8 +92,26 @@ class FrontApp {
 
   public commitClicked(commit: ICommit): void {
     this.selectedCommit = commit;
+    this.view = 'commit';
     console.log('Commit clicked:', commit);
+    this.openCommitView();
   }
+
+  private openCommitView(): void {
+    if (!this.mainSection) return;
+    this.mainSection.innerHTML = '';
+    this.mainSection.classList.add('main-commit-view');
+    const htmlCommit = document.createElement('div');
+    htmlCommit.classList.add('commit-view');
+    htmlCommit.id = 'commit-view';
+    this.mainSection.appendChild(htmlCommit);
+    this.tooltip.hide();
+    const commitTimeline = new CommitTimeline(this, this.selectedCommit, {});
+    commitTimeline.render(htmlCommit);
+
+  }
+
+
 
   public getCurrentProject(): IProjectConfig | null {
     return this.selectedProject;
@@ -187,8 +212,15 @@ class FrontApp {
     const shiftY = 50;
     const dx = 100;
     const dy = 30;
-    const graphCanvas = document.getElementById('graph-canvas');
-    if (!graphCanvas) { console.error('Graph canvas not found'); return; }
+    let graphCanvas = document.getElementById('graph-canvas');
+    if (!graphCanvas && this.mainSection) {
+      this.mainSection.innerHTML = '<div id="graph-canvas"></div>';
+      graphCanvas = document.getElementById('graph-canvas');
+      console.warn('Graph canvas not found');
+    }
+    if (!graphCanvas) return;
+    this.view = 'graph';
+
 
     const lGraph = new Graph(this, { branchesMarginX, refsMarginX, refsX, shiftX, shiftY, dx, dy });
     lGraph.render(graphCanvas);
