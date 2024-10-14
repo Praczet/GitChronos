@@ -40,8 +40,8 @@ class CommitTimeline {
     const commit = document.createElement('div');
     commit.classList.add('ctl-commit');
     commit.classList.add('ctl-commit-current');
-    commit.innerHTML = this.selectedCommit!.commit;
     commit.style.transform = `translateZ(0px) translateY(${(this.timelineSize.height / 2) - (this.commitSize.height / 2)}px) rotateX(0deg) `;
+    commit.appendChild(this.getCommitContent(this.selectedCommit));
 
 
     const parents = document.createElement('div');
@@ -56,7 +56,10 @@ class CommitTimeline {
     timeline.appendChild(parents);
 
     this.element.appendChild(fragment);
-    console.log(this.element);
+    // console.log(this.element);
+    // if (this.selectedCommit && this.selectedCommit.files && this.selectedCommit.files.length > 0) {
+    //   this.app.getCommitChanges(this.selectedCommit!, this.selectedCommit!.files[0].file);
+    // }
     const that = this;
     document.addEventListener('keydown', function (event) {
       if (event.key === 'ArrowUp') {
@@ -65,8 +68,33 @@ class CommitTimeline {
         that.moveDown();
       }
     });
-
+    this.addFileClickEvent();
   }
+
+  addFileClickEvent() {
+    const files = document.querySelectorAll('.ct-file');
+    console.log(files);
+    files.forEach((file) => {
+      file.addEventListener('click', (event) => {
+        const target = event.currentTarget as HTMLElement;
+        const file = target.dataset.file;
+        // const file = target.getAttribute('data-file');
+        if (file) {
+          const htmlDiff = this.app.getCommitChanges(this.selectedCommit!, file);
+          htmlDiff.then((htmlDiff) => {
+            const diffElement = document.createElement('div');
+            diffElement.innerHTML = htmlDiff;
+            document.body.appendChild(diffElement);
+          });
+        }
+      });
+    });
+  }
+
+  getCommitContent(commit?: ICommit) {
+    return this.app.getCommitContent(commit, true, 'ct');
+  }
+
   private setAroundCommit() {
     if (!this.selectedCommit) {
       console.error('No selected commit');
@@ -96,28 +124,22 @@ class CommitTimeline {
     newChildren.style.transform = 'translateZ(-400px) rotateX(120deg) scaleY(0)';
     newChildren.classList.add('ctl-children');
 
-    // Transition children to current
-    children.style.transform = 'translateZ(0px) translateY(140px) rotateX(0deg)';
+    children.style.transform = `translateZ(0px) translateY(${(this.timelineSize.height / 2) - (this.commitSize.height / 2)}px) rotateX(0deg) `;
     children.classList.replace('ctl-children', 'ctl-commit-current');
 
-    // Transition current commit to parents
-    current.style.transform = 'translateZ(-60px) translateY(340px) rotateX(-40deg)';
+    current.style.transform = `translateY(${(this.timelineSize.height / 2) + (this.commitSize.height / 2)}px) rotateX(-60deg) translateZ(-${this.commitSize.width / 6}px)  scale(0.8)`;
     current.classList.replace('ctl-commit-current', 'ctl-parents');
 
 
     parents.style.transform = 'translateZ(-400px) translateY(140px) rotateX(0deg) scaleY(0)';
 
-
-
-    // Append to timeline and animate new children
     timeline.appendChild(newChildren);
 
-    // Animate the new children scale
     setTimeout(() => {
-      newChildren.style.transform = 'translateZ(-100px) translateY(0px) rotateX(80deg) scaleY(1)';
+      newChildren.style.transform = `translateY(-${50 + this.commitSize.height / 2}px) rotateX(60deg) translateZ(-${this.commitSize.width / 6}px)  scale(0.8)`;
       parents.remove();
       console.log('removed');
-    }, 50); // Add a small delay for smooth transition
+    }, 50);
   }
 
   private moveUp() {
@@ -127,31 +149,26 @@ class CommitTimeline {
     let children = document.querySelector('.ctl-children') as HTMLElement;
     let parents = document.querySelector('.ctl-parents') as HTMLElement;
 
-    // Transition children to current
     children.style.transform = 'translateZ(-400px) translateY(0px) rotateX(90deg) scaleY(0)';
 
-    // Transition current commit to parents
-    current.style.transform = 'translateZ(-100px) translateY(0px) rotateX(80deg)';
+    current.style.transform = `translateY(-${50 + this.commitSize.height / 2}px) rotateX(60deg) translateZ(-${this.commitSize.width / 6}px)  scale(0.8)`;
     current.classList.replace('ctl-commit-current', 'ctl-children');
 
 
     parents.classList.replace('ctl-parents', 'ctl-commit-current');
-    parents.style.transform = 'translateZ(0px) translateY(140px) rotateX(0deg)';
+    parents.style.transform = `translateZ(0px) translateY(${(this.timelineSize.height / 2) - (this.commitSize.height / 2)}px) rotateX(0deg) `;
 
-    // Create new parent
     const newParents = document.createElement('div');
-    newParents.style.transform = 'translateZ(-60px) rotateX(-90deg) scaleY(0)';
+    newParents.style.transform = `translateY(${(this.timelineSize.height / 2) + (this.commitSize.height / 2)}px) rotateX(-60deg) translateZ(-${this.commitSize.width / 6}px)  scale(0.0)`;
     newParents.classList.add('ctl-parents');
 
-    // Append to timeline and animate new children
     timeline.appendChild(newParents);
 
-    // Animate the new children scale
     setTimeout(() => {
-      newParents.style.transform = 'translateZ(-60px) translateY(340px) rotateX(-40deg) scaleY(1)';
+      newParents.style.transform = `translateY(${(this.timelineSize.height / 2) + (this.commitSize.height / 2)}px) rotateX(-60deg) translateZ(-${this.commitSize.width / 6}px)  scale(0.8)`;
       children.remove();
       console.log('removed');
-    }, 50); // Add a small delay for smooth transition
+    }, 50);
   }
 
 }

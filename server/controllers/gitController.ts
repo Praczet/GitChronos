@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import simpleGit, { SimpleGit } from 'simple-git';
 import { ServerResponse } from '../models/ServerResponse.js';
 import HttpService from '../models/HttpService.js';
+import diff2html from 'diff2html';
 
 
 export const getGit = (req: Request, res: Response): SimpleGit | undefined => {
@@ -139,6 +140,29 @@ export const getCommit = async (req: Request, res: Response): Promise<void> => {
     res.status(200).json(response);
   } catch (error) {
     const response = new ServerResponse('Failed to fetch commit', 'error', 500, null, error);
+    res.status(500).json(response);
+  }
+};
+
+export const getCommitChanges = async (req: Request, res: Response): Promise<void> => {
+  try {
+
+    const git = getGit(req, res);
+    if (!git) throw new Error('Failed to get git');
+    const parameters = HttpService.createResponseObject(req);
+
+    // const diffSummary = await git.diffSummary([`${parameters.commit}^`, parameters.commit, '--stat']);
+
+    const diff = await git.diff([`${parameters.commit}^`, parameters.commit, '--', parameters.file]);
+
+    const diffHtml = diff2html.html(diff, {
+      matching: 'lines',
+      outputFormat: 'side-by-side', // or 'line-by-line'
+    });
+    const response = new ServerResponse(`Commit:[${parameters.commit}] changes for file: ${parameters.file} fetched successfully`, 'info', 200, diffHtml);
+    res.status(200).json(response);
+  } catch (error) {
+    const response = new ServerResponse('Failed to fetch commit changes', 'error', 500, null, error);
     res.status(500).json(response);
   }
 };

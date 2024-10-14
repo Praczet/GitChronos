@@ -97,18 +97,36 @@ class ToolTip {
   private adjustIndicator(direction: TPosition): void {
     this.indicatorElement.className = `tooltip-indicator tooltip-indicator-${direction}`;
   }
-  public setContent(newContent: string, elID?: string): void {
-    this.content = newContent;
-    if (!this.contentElement) return;
-    if (!elID) {
-      this.contentElement.innerHTML = `${this.content}`;
-      return;
+  public setContent(newContent: string | DocumentFragment, elID?: string): void {
+    if (newContent instanceof DocumentFragment) {
+
+      if (!this.contentElement) return;
+      if (!elID) {
+        this.contentElement.innerHTML = ``;
+        this.contentElement.appendChild(newContent);
+        this.content = this.contentElement.innerHTML;
+        return;
+      }
+      const el = this.contentElement.querySelector(`#${elID}`);
+      // console.log('setContent:el', el);
+      if (!el) return;
+      // console.log('content', this.content);
+      el.innerHTML = ``;
+      el.appendChild(newContent);
+      this.content = el.innerHTML;
+    } else {
+      this.content = newContent;
+      if (!this.contentElement) return;
+      if (!elID) {
+        this.contentElement.innerHTML = `${this.content}`;
+        return;
+      }
+      const el = this.contentElement.querySelector(`#${elID}`);
+      // console.log('setContent:el', el);
+      if (!el) return;
+      // console.log('content', this.content);
+      el.innerHTML = `${this.content}`;
     }
-    const el = this.contentElement.querySelector(`#${elID}`);
-    // console.log('setContent:el', el);
-    if (!el) return;
-    // console.log('content', this.content);
-    el.innerHTML = `${this.content}`;
   }
 }
 

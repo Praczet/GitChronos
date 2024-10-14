@@ -219,25 +219,30 @@ body {
   border-radius: 0 0 0 10px;
 }
 
+.ct-commit h1,
 .tt-commit h1 {
   font-size: var(--font-size-large);
 }
 
+p.ct-message,
 p.tt-message {
   font-weight: bold;
 }
 
+p.ct-body-desc,
 p.tt-body-desc {
   padding: 10px;
   font-style: italic;
 }
 
+.ct-body,
 .tt-body {
   background-color: var(--b1-3);
   padding: 10px;
   border-radius: 10px;
 }
 
+.ct-info,
 .tt-info {
   display: flex;
   padding: 10px;
@@ -245,20 +250,24 @@ p.tt-body-desc {
   justify-content: space-between;
 }
 
+.ct-author > div:not(:first-child),
 .tt-author > div:not(:first-child) {
   margin-left: 10px;
   font-size: var(--font-size-small);
 }
 
+.ct-parents > div:not(:first-child),
 .tt-parents > div:not(:first-child) {
   font-size: var(--font-size-small);
   text-align: right;
 }
 
+.ct-label,
 .tt-label {
   font-weight: bold;
 }
 
+.ct-files-list,
 .tt-files-list {
   list-style-type: none;
   padding: 0;
@@ -267,11 +276,14 @@ p.tt-body-desc {
   margin-top: 10px;
 }
 
+.ct-files-list li,
 .tt-files-list li {
   line-height: var(--font-size-large);
   margin-bottom: 5px;
 }
 
+.ct-files span.commit-file-status,
+.ct-files-list li span.commit-file-status,
 .tt-files span.commit-file-status,
 .tt-files-list li span.commit-file-status {
   font-weight: bolder;
@@ -283,6 +295,7 @@ p.tt-body-desc {
   text-align: center;
 }
 
+.ct-files,
 .tt-files {
   line-height: 1rem;
 }
@@ -553,4 +566,18 @@ html {
 .graph-ref-tag {
   display: flex;
   align-items: center;
+}
+
+.ctl-commit::-webkit-scrollbar {
+  width: 12px;
+}
+
+.ctl-commit::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ctl-commit::-webkit-scrollbar-thumb {
+  background-color: rgb(0 0 0 / 50%);
+  border-radius: 10px;
+  border: 3px solid transparent;
 }

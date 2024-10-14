@@ -134,7 +134,7 @@ class FrontApp {
 
   private async fetchProjects(): Promise<void> {
     try {
-      const data = await HttpService.Fetch < IServerResponse < IProjectConfig[] >> ('/api/projects');
+      const data = await HttpService.Fetch<IServerResponse<IProjectConfig[]>>('/api/projects');
       const response = new ServerResponse(data);
       if (response.isError()) {
         console.error(response.message);
@@ -151,7 +151,7 @@ class FrontApp {
     try {
       const keys = Object.keys(this.icons);
       keys.forEach(async (key) => {
-        const data = await HttpService.Fetch < IServerResponse < IProjectConfig[] >> ('/api/resources/getSVG', { path: this.iconSrcFile[key as "HEAD" | "ORIGIN" | "LOCAL"] });
+        const data = await HttpService.Fetch<IServerResponse<IProjectConfig[]>>('/api/resources/getSVG', { path: this.iconSrcFile[key as "HEAD" | "ORIGIN" | "LOCAL"] });
         const response = new ServerResponse(data);
         if (response.isError()) {
           console.error(response.message);
@@ -166,7 +166,7 @@ class FrontApp {
 
   private async fetchCommits(projectPath: string, branch: string = ""): Promise<void> {
     try {
-      const data = await HttpService.Fetch < IServerResponse < Record < string, any>>> ('/api/git/commits', { path: projectPath, branch: branch });
+      const data = await HttpService.Fetch<IServerResponse<Record<string, any>>>('/api/git/commits', { path: projectPath, branch: branch });
       const response = new ServerResponse(data);
       if (response.isError()) {
         console.error(response.message);
@@ -179,7 +179,7 @@ class FrontApp {
 
   private async fetchLogGraph(project: IProjectConfig): Promise<void> {
     try {
-      const data = await HttpService.Fetch < IServerResponse < string[] >> ('/api/git/graph', { path: project.path });
+      const data = await HttpService.Fetch<IServerResponse<string[]>>('/api/git/graph', { path: project.path });
       const response = new ServerResponse(data);
       if (response.isError()) {
         console.error(response.message);
@@ -189,6 +189,27 @@ class FrontApp {
       this.renderGraph();
     } catch (error) {
       console.error('Unexpected error:', error);
+    }
+  }
+
+  public async getCommitChanges(commit: ICommit, file?: string): Promise<string> {
+    try {
+      if (file) {
+        const data = await HttpService.Fetch<IServerResponse<string[]>>('/api/git/commitChanges', { commit: commit.commit, file: file });
+        const response = new ServerResponse(data);
+        if (response.isError()) {
+          console.error(response.message);
+          return '';
+        }
+        // this.commits = response.data ?? [];
+
+
+        return response.data;
+      }
+      return '';
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      return '';
     }
   }
 
@@ -228,29 +249,29 @@ class FrontApp {
     lGraph.render(graphCanvas);
   }
 
-  public setToolTipContentCommit(commit: ICommit, reload: boolean): void {
-    if (!commit) {
-      this.tooltip.setContent('');
-      return;
-    }
+  public getCommitContent(commit?: ICommit, reload: boolean = true, cssPrefix: string = 'tt-') {
+    const htmlFragment = document.createDocumentFragment();
+    if (!commit) return htmlFragment;
 
     const dWrapper = document.createElement('div');
-    dWrapper.classList.add('tt-commit');
-    dWrapper.id = `tt-commit-${commit.commit}`;
+    htmlFragment.appendChild(dWrapper);
+
+    dWrapper.classList.add(`${cssPrefix}-commit`);
+    dWrapper.id = `${cssPrefix}-commit-${commit.commit}`;
 
     const h1 = document.createElement('h1');
     h1.innerHTML = `Commit: ${commit.commit}`;
 
     const dBody = document.createElement('div');
-    dBody.classList.add('tt-body');
-    dBody.innerHTML = `<p class="tt-message">${commit.message}</p><p class="tt-body-desc">${commit.body}</p>`;
+    dBody.classList.add(`${cssPrefix}-body`);
+    dBody.innerHTML = `<p class="${cssPrefix}-message">${commit.message}</p><p class="${cssPrefix}-body-desc">${commit.body}</p>`;
 
     const dInfo = document.createElement('div');
-    dInfo.classList.add('tt-info');
+    dInfo.classList.add(`${cssPrefix}-info`);
 
     const dAuthor = document.createElement('div');
-    dAuthor.classList.add('tt-author');
-    dAuthor.innerHTML = `<div class="tt-label">Author</div>
+    dAuthor.classList.add(`${cssPrefix}-author`);
+    dAuthor.innerHTML = `<div class="${cssPrefix}-label">Author</div>
       <div>${commit.author ?? ''}</div>
       <div>&lt;${commit.email ?? ''}&gt;</div>
       <div>${commit.cDate ?? ''}</div>
@@ -258,13 +279,13 @@ class FrontApp {
     dInfo.appendChild(dAuthor);
 
     const dPrent = document.createElement('div');
-    dPrent.classList.add('tt-parents');
-    dPrent.innerHTML = `<div class="tt-label">Parents</div><div>${commit.parents.join('<br>')}</div>`;
+    dPrent.classList.add(`${cssPrefix}-parents`);
+    dPrent.innerHTML = `<div class="${cssPrefix}-label">Parents</div><div>${commit.parents.join('<br>')}</div>`;
     dInfo.appendChild(dPrent);
 
     const dFiles = document.createElement('div');
     if (commit.files && commit.files.length > 0) {
-      dFiles.classList.add('tt-files');
+      dFiles.classList.add(`${cssPrefix}-files`);
       const fileStats = commit.files.reduce(
         (acc: Record<string, number>, file) => {
           if (!acc[file.status]) acc[file.status] = 0;
@@ -279,11 +300,13 @@ class FrontApp {
 
 
 
-      dFiles.innerHTML = `<span><span class="tt-label">Files: </span>${aStatus}</span>`;
+      dFiles.innerHTML = `<span><span class="${cssPrefix}-label">Files: </span>${aStatus}</span>`;
       const ul = document.createElement('ul');
-      ul.classList.add('tt-files-list');
+      ul.classList.add(`${cssPrefix}-files-list`);
       commit.files.forEach((file) => {
         const li = document.createElement('li');
+        li.classList.add(`${cssPrefix}-file`);
+        li.dataset.file = file.file;
         li.innerHTML = `${this.getFileStatusIcons(file.status)} <span class='commit-dim-path'>${this.dimPath(file.file)}</span>`;
         ul.appendChild(li);
       });
@@ -294,8 +317,16 @@ class FrontApp {
     dWrapper.appendChild(dBody);
     dWrapper.appendChild(dInfo);
     dWrapper.appendChild(dFiles);
+    return htmlFragment;
+  }
 
-    this.tooltip.setContent(dWrapper.outerHTML, reload ? `tt-commit-${commit.commit}` : undefined);
+  public setToolTipContentCommit(commit: ICommit, reload: boolean): void {
+    if (!commit) {
+      this.tooltip.setContent('');
+      return;
+    }
+    const htmlFragment = this.getCommitContent(commit, reload, 'tt');
+    this.tooltip.setContent(htmlFragment, reload ? `tt-commit-${commit.commit}` : undefined);
   }
 
   private dimPath(path: string): string {
@@ -333,7 +364,7 @@ class FrontApp {
 
   public async loadCommitData(commit: string, returnAction: string = ""): Promise<void> {
     try {
-      const data = await HttpService.Fetch < IServerResponse < ICommit >> (
+      const data = await HttpService.Fetch<IServerResponse<ICommit>>(
         '/api/git/commit',
         { commitHash: commit, path: this.selectedProject?.path ?? "" },
         { method: "POST" }
