@@ -49,10 +49,34 @@
   padding: 1px 5px;
   border: 1px solid var(--b1-2);
   background-color: var(--b1-1);
-  border-radius: 10px;
   cursor: pointer;
 }
 
 .ct-files-list .commit-file-name:hover {
   background-color: var(--b1-2);
+}
+
+.file-diff-popup {
+  position: absolute;
+  z-index: 9000;
+  background-color: var(--b0-0);
+  border: 1px solid var(--b1-2);
+  border-radius: 10px;
+  transition: all 0.5s;
+  padding: 20px;
+  overflow: overlay;
+}
+
+.file-diff-popup::-webkit-scrollbar {
+  width: 12px;
+}
+
+.file-diff-popup::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.file-diff-popup::-webkit-scrollbar-thumb {
+  background-color: rgb(0 0 0 / 50%);
+  border-radius: 10px;
+  border: 3px solid transparent;
 }

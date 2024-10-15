@@ -134,7 +134,7 @@ class FrontApp {
 
   private async fetchProjects(): Promise<void> {
     try {
-      const data = await HttpService.Fetch<IServerResponse<IProjectConfig[]>>('/api/projects');
+      const data = await HttpService.Fetch < IServerResponse < IProjectConfig[] >> ('/api/projects');
       const response = new ServerResponse(data);
       if (response.isError()) {
         console.error(response.message);
@@ -151,7 +151,7 @@ class FrontApp {
     try {
       const keys = Object.keys(this.icons);
       keys.forEach(async (key) => {
-        const data = await HttpService.Fetch<IServerResponse<IProjectConfig[]>>('/api/resources/getSVG', { path: this.iconSrcFile[key as "HEAD" | "ORIGIN" | "LOCAL"] });
+        const data = await HttpService.Fetch < IServerResponse < IProjectConfig[] >> ('/api/resources/getSVG', { path: this.iconSrcFile[key as "HEAD" | "ORIGIN" | "LOCAL"] });
         const response = new ServerResponse(data);
         if (response.isError()) {
           console.error(response.message);
@@ -166,7 +166,7 @@ class FrontApp {
 
   private async fetchCommits(projectPath: string, branch: string = ""): Promise<void> {
     try {
-      const data = await HttpService.Fetch<IServerResponse<Record<string, any>>>('/api/git/commits', { path: projectPath, branch: branch });
+      const data = await HttpService.Fetch < IServerResponse < Record < string, any>>> ('/api/git/commits', { path: projectPath, branch: branch });
       const response = new ServerResponse(data);
       if (response.isError()) {
         console.error(response.message);
@@ -179,7 +179,7 @@ class FrontApp {
 
   private async fetchLogGraph(project: IProjectConfig): Promise<void> {
     try {
-      const data = await HttpService.Fetch<IServerResponse<string[]>>('/api/git/graph', { path: project.path });
+      const data = await HttpService.Fetch < IServerResponse < string[] >> ('/api/git/graph', { path: project.path });
       const response = new ServerResponse(data);
       if (response.isError()) {
         console.error(response.message);
@@ -195,7 +195,7 @@ class FrontApp {
   public async getCommitChanges(commit: ICommit, file?: string): Promise<string> {
     try {
       if (file) {
-        const data = await HttpService.Fetch<IServerResponse<string[]>>('/api/git/commitChanges', { commit: commit.commit, file: file });
+        const data = await HttpService.Fetch < IServerResponse < string[] >> ('/api/git/commitChanges', { commit: commit.commit, file: file });
         const response = new ServerResponse(data);
         if (response.isError()) {
           console.error(response.message);
@@ -364,7 +364,7 @@ class FrontApp {
 
   public async loadCommitData(commit: string, returnAction: string = ""): Promise<void> {
     try {
-      const data = await HttpService.Fetch<IServerResponse<ICommit>>(
+      const data = await HttpService.Fetch < IServerResponse < ICommit >> (
         '/api/git/commit',
         { commitHash: commit, path: this.selectedProject?.path ?? "" },
         { method: "POST" }
@@ -396,6 +396,9 @@ class FrontApp {
   public showToolTip(targetElement: HTMLElement, options: { position?: 'top' | 'bottom' | 'left' | 'right', dX?: number, dY?: number }): void {
     this.tooltip.show(targetElement, options);
   }
+
+
+
 }
 export default FrontApp;
 new FrontApp();

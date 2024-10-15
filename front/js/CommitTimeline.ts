@@ -82,13 +82,89 @@ class CommitTimeline {
         if (file) {
           const htmlDiff = this.app.getCommitChanges(this.selectedCommit!, file);
           htmlDiff.then((htmlDiff) => {
-            const diffElement = document.createElement('div');
-            diffElement.innerHTML = htmlDiff;
-            document.body.appendChild(diffElement);
+            const commitFileName = target.querySelector('.commit-file-name');
+            if (commitFileName) {
+              const cfnRect = commitFileName.getBoundingClientRect();
+              this.createFileDiffPopup(cfnRect, htmlDiff);
+            }
           });
         }
       });
     });
+  }
+  createFileDiffPopup(rect: DOMRect, htmlDiff: string) {
+    let elFileDiff = document.getElementById('file-diff-popup');
+    if (!elFileDiff) {
+      elFileDiff = document.createElement('div');
+      elFileDiff.id = 'file-diff-popup';
+      document.body.appendChild(elFileDiff);
+      elFileDiff.addEventListener('click', (event) => {
+        __hideDiffPopup();
+      });
+    }
+    elFileDiff.classList.add('file-diff-popup');
+    console.log({ rect });
+    __hideDiffPopup(true);
+    __setInitialPosition();
+    // Make element visible and apply initial styles
+
+    // Trigger transition to full screen after a short delay
+    setTimeout(() => {
+      __openDiffPopupFullScreen(10);
+      elFileDiff.innerHTML = htmlDiff;
+    }, 50);
+
+
+
+
+
+    function __setInitialPosition() {
+      if (!elFileDiff) return;
+      elFileDiff.style.top = `${rect.top}px`;
+      elFileDiff.style.left = `${rect.left}px`;
+      elFileDiff.style.width = `${rect.width}px`;
+      elFileDiff.style.height = `${rect.height}px`;
+      elFileDiff.style.opacity = '1';
+      elFileDiff.style.display = 'block';
+    }
+
+    function __hideDiffPopup(immediately: boolean = false) {
+      if (!elFileDiff) return;
+      elFileDiff.style.opacity = '0';
+      __setInitialPosition();
+      if (immediately) {
+        elFileDiff.style.display = 'none';
+      }
+      else {
+        setTimeout(() => { elFileDiff.style.display = "none"; }, 300);
+      }
+    }
+
+    function __openDiffPopupFullScreen(margin: number | { top?: number, right?: number, bottom?: number, left?: number } = 50) {
+      if (!elFileDiff) return;
+
+      if (typeof margin === 'number') {
+        margin = { top: margin, right: margin, bottom: margin, left: margin };
+      }
+      else {
+        margin = {
+          top: margin.top ?? 50,
+          right: margin.right ?? 50,
+          bottom: margin.bottom ?? 50,
+          left: margin.left ?? 50
+        };
+      }
+      elFileDiff.style.display = 'block';
+      elFileDiff.style.opacity = '1';
+
+      elFileDiff.style.top = `${margin.top}px`;
+      elFileDiff.style.left = `${margin.left!}px`;
+      elFileDiff.style.width = `calc(100% - ${margin.left! + margin.right!}px - 60px)`;
+      elFileDiff.style.height = `calc(100vh - ${margin.top! + margin.bottom!}px - 60px)`;
+
+
+    }
+
   }
 
   getCommitContent(commit?: ICommit) {
