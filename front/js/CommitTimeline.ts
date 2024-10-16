@@ -73,7 +73,6 @@ class CommitTimeline {
 
   addFileClickEvent() {
     const files = document.querySelectorAll('.ct-file');
-    console.log(files);
     files.forEach((file) => {
       file.addEventListener('click', (event) => {
         const target = event.currentTarget as HTMLElement;
@@ -92,8 +91,10 @@ class CommitTimeline {
       });
     });
   }
+
   createFileDiffPopup(rect: DOMRect, htmlDiff: string) {
     let elFileDiff = document.getElementById('file-diff-popup');
+    const svgFileHistory = this.app.icons.FILEHISTORY;
     if (!elFileDiff) {
       elFileDiff = document.createElement('div');
       elFileDiff.id = 'file-diff-popup';
@@ -103,15 +104,15 @@ class CommitTimeline {
       });
     }
     elFileDiff.classList.add('file-diff-popup');
-    console.log({ rect });
     __hideDiffPopup(true);
     __setInitialPosition();
     // Make element visible and apply initial styles
 
     // Trigger transition to full screen after a short delay
     setTimeout(() => {
+      __createDiffPopupContent();
       __openDiffPopupFullScreen(10);
-      elFileDiff.innerHTML = htmlDiff;
+      __setDiffFileDiff(htmlDiff, this.selectedCommit);
     }, 50);
 
 
@@ -161,8 +162,40 @@ class CommitTimeline {
       elFileDiff.style.left = `${margin.left!}px`;
       elFileDiff.style.width = `calc(100% - ${margin.left! + margin.right!}px - 60px)`;
       elFileDiff.style.height = `calc(100vh - ${margin.top! + margin.bottom!}px - 60px)`;
+    }
 
+    function __createDiffPopupContent() {
+      if (!elFileDiff) return;
+      elFileDiff.innerHTML = '';
 
+      const commitInfo = document.createElement('div');
+      commitInfo.classList.add('file-diff--commit-info');
+
+      const fileDiff = document.createElement('div');
+      fileDiff.id = 'file-diff--content';
+      fileDiff.classList.add('file-diff--content');
+
+      elFileDiff.appendChild(commitInfo);
+      elFileDiff.appendChild(fileDiff);
+    }
+
+    function __setDiffFileDiff(htmlDiff: string, selectedCommit?: ICommit) {
+      if (!elFileDiff) return;
+      const commitInfo = document.querySelector('.file-diff--commit-info')!;
+      if (selectedCommit && commitInfo) {
+        commitInfo.innerHTML = `<div>
+          Commit: <strong>${selectedCommit.commit}</strong> 
+          by <strong>${selectedCommit.author}</strong> 
+          on <strong>${selectedCommit.cDate}</strong>
+        </div>
+        <div id="file-diff--history" class="file-diff--history">
+          ${svgFileHistory}
+        </div>
+        `;
+      }
+      const diffContent = document.getElementById('file-diff--content')!;
+      if (!diffContent) return;
+      diffContent.innerHTML = htmlDiff;
     }
 
   }

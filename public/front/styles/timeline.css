@@ -80,3 +80,47 @@
   border-radius: 10px;
   border: 3px solid transparent;
 }
+
+.d2h-file-wrapper .d2h-file-name-wrapper .d2h-icon,
+.d2h-file-list-title {
+  display: none;
+}
+
+.file-diff--commit-info {
+  padding: 10px;
+  border: 1px solid var(--b1-2);
+  border-radius: 10px;
+  background-color: var(--b1-2);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+}
+
+.file-diff--close-btn {
+  position: absolute;
+  z-index: 11;
+  right: 0;
+}
+
+.file-diff--history {
+  background-color: var(--b1-1);
+  padding: 10px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  cursor: pointer;
+}
+
+.file-diff--history:hover {
+  --icon-fill: var(--c1-3);
+
+  background-color: var(--b1-3);
+  color: var(--c1-3);
+}
+
+.file-diff--history svg {
+  height: 20px;
+}

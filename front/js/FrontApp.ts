@@ -22,12 +22,14 @@ class FrontApp {
     TAG: '',
     HEAD: '',
     ORIGIN: '',
+    FILEHISTORY: '',
     LOCAL: ''
   };
   private iconSrcFile = {
     TAG: 'tag.svg',
     HEAD: 'head.svg',
     ORIGIN: 'git-origin.svg',
+    FILEHISTORY: 'file-history.svg',
     LOCAL: 'git.svg'
   }
 
@@ -151,13 +153,13 @@ class FrontApp {
     try {
       const keys = Object.keys(this.icons);
       keys.forEach(async (key) => {
-        const data = await HttpService.Fetch < IServerResponse < IProjectConfig[] >> ('/api/resources/getSVG', { path: this.iconSrcFile[key as "HEAD" | "ORIGIN" | "LOCAL"] });
+        const data = await HttpService.Fetch < IServerResponse < IProjectConfig[] >> ('/api/resources/getSVG', { path: this.iconSrcFile[key as "HEAD" | "ORIGIN" | "LOCAL" | "FILEHISTORY"] });
         const response = new ServerResponse(data);
         if (response.isError()) {
           console.error(response.message);
           return;
         }
-        this.icons[key as "ORIGIN" | "HEAD" | "LOCAL"] = response.data ?? '<span class="svg-not-found icon-head"></span>';
+        this.icons[key as "ORIGIN" | "HEAD" | "LOCAL" | "FILEHISTORY"] = response.data ?? '<span class="svg-not-found icon-head"></span>';
       });
     } catch (error) {
       console.error('Unexpected error:', error);
